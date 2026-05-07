@@ -3,61 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Refueling Realtime</title>
+    <title>PITPRO Dashboard | Refueling</title>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f7f6; }
-        h2 { color: #333; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-        th { background-color: #f4b41a; color: #333; }
-        .input-section { margin-bottom: 20px; padding: 20px; background: white; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .input-section h3 { margin-top: 0; color: #555; }
-        input { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
-        input[type="text"] { width: 200px; }
-        #reader-container { width: 100%; max-width: 500px; margin-bottom: 15px; display: none; margin-top: 10px;}
-        .btn-kamera { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-kamera:hover { background-color: #0056b3; }
-        .btn-kirim { padding: 10px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-kirim:hover { background-color: #218838; }
+        /* === ATURAN SAKTI ANTI-MELAR === */
+        * { box-sizing: border-box; }
+
+        :root {
+            --bg-color: #eaeded; --primary-color: #2c3e50; --accent-color: #f39c12; 
+            --text-dark: #333333; --white: #ffffff; --success: #27ae60; --danger: #e74c3c;
+        }
+        
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-dark); margin: 0; padding: 0; }
+        
+        /* === DESAIN LAYAR AWAL (LOGIN LOKASI) === */
+        #layarAwal {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 20px;
+        }
+        .login-box {
+            background: var(--primary-color); 
+            padding: 40px 30px; border-radius: 12px; text-align: center; 
+            width: 100%; max-width: 400px; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            border-bottom: 6px solid var(--accent-color);
+        }
+        /* Mengunci ukuran logo agar tidak bocor */
+        .login-box img { max-width: 100%; height: 70px; margin-bottom: 20px; object-fit: contain; }
+        .login-box h2 { color: var(--white); margin-top: 0; margin-bottom: 5px; text-transform: uppercase;}
+        .login-box p { color: #ecf0f1; font-size: 14px; margin-bottom: 25px; }
+        .login-box select {
+            width: 100%; padding: 15px; margin-bottom: 25px; border: 2px solid #bdc3c7; 
+            border-radius: 8px; font-size: 16px; font-weight: bold; color: var(--primary-color);
+            background-color: #f9f9f9; outline: none; transition: 0.3s; cursor: pointer;
+        }
+        .login-box select:focus { border-color: var(--accent-color); }
+
+        /* === DESAIN LAYAR UTAMA (DASHBOARD) === */
+        #layarUtama { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; } 
+        
+        .header-container { display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); padding: 15px 20px; border-radius: 8px 8px 0 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-bottom: 5px solid var(--accent-color); margin-bottom: 20px; position: relative;}
+        .header-container img { height: 50px; margin-right: 20px; object-fit: contain; }
+        .header-container h2 { color: var(--white); margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
+        .info-lokasi { position: absolute; right: 20px; background: var(--accent-color); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;}
+        
+        .input-section { background: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 5px solid var(--accent-color); }
+        .input-section h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; transition: all 0.3s ease; }
+        input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
+        input[type="text"], input[type="number"] { flex: 1; min-width: 150px; }
+        button { padding: 12px 20px; color: var(--white); border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; text-transform: uppercase; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-kamera { background-color: #3498db; margin-bottom: 15px; width: auto; }
+        .btn-kamera:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .btn-kirim { background-color: var(--success); width: 100%; font-size: 16px; padding: 15px;}
+        .btn-kirim:hover { background-color: #219653; transform: translateY(-2px); }
+        #reader-container { width: 100%; max-width: 500px; margin-bottom: 15px; display: none; border: 3px solid var(--accent-color); border-radius: 8px; overflow: hidden;}
+        
+        .table-container { background: var(--white); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #eeeeee; }
+        th { background-color: var(--primary-color); color: var(--white); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        th:nth-child(2), th:nth-child(3) { color: var(--accent-color); }
+        tbody tr:hover { background-color: #f9f9f9; }
+        .badge-status { background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+
+        #snackbar { visibility: hidden; min-width: 250px; background-color: var(--success); color: #fff; text-align: center; border-radius: 30px; padding: 15px 20px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; font-weight: bold; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4); }
+        #snackbar.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* === TAMPILAN RESPONSIVE UNTUK HP === */
+        @media screen and (max-width: 768px) {
+            .header-container { flex-direction: column; text-align: center; padding: 15px; }
+            .header-container img { margin-right: 0; margin-bottom: 10px; height: 40px; }
+            .header-container h2 { font-size: 18px; margin-bottom: 10px;}
+            .info-lokasi { position: static; display: inline-block; }
+            .input-section { padding: 15px; }
+            .btn-kamera { width: 100%; }
+            input[type="text"], input[type="number"] { flex: 1 1 100%; margin-right: 0; }
+            
+            .table-container { background: transparent; box-shadow: none; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { border: 2px solid var(--accent-color); border-radius: 8px; margin-bottom: 15px; background: var(--white); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            td { border: none; border-bottom: 1px solid #eee; position: relative; padding: 12px 10px 12px 45%; text-align: right; font-size: 14px; }
+            td:last-child { border-bottom: none; }
+            td:before { position: absolute; top: 12px; left: 15px; width: 40%; white-space: nowrap; text-align: left; font-weight: bold; color: var(--primary-color); }
+            
+            td:nth-of-type(1):before { content: "Tanggal"; }
+            td:nth-of-type(2):before { content: "Shift"; }
+            td:nth-of-type(3):before { content: "Lokasi"; }
+            td:nth-of-type(4):before { content: "Jam Pengisian"; }
+            td:nth-of-type(5):before { content: "No Lambung"; }
+            td:nth-of-type(6):before { content: "Tipe Unit"; }
+            td:nth-of-type(7):before { content: "Driver"; }
+            td:nth-of-type(8):before { content: "HM"; }
+            td:nth-of-type(9):before { content: "Qty Solar (L)"; }
+            td:nth-of-type(10):before { content: "Status"; }
+        }
     </style>
 </head>
 <body>
 
-    <h2>Live Monitoring Pitstop Refueling</h2>
-
-    <div class="input-section">
-        <h3>Operator Area: Form Pengisian</h3>
-        <button id="btnToggleCamera" class="btn-kamera">📷 Buka Kamera Scanner</button>
-        <div id="reader-container"><div id="reader"></div></div>
-        <br><br>
-        
-        <input type="text" id="barcodeInput" placeholder="Scan Barcode Unit..." readonly>
-        <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
-        <input type="number" id="hmInput" placeholder="HM Terakhir">
-        <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
-        
-        <button id="btnKirim" class="btn-kirim">Kirim Data</button>
+    <div id="layarAwal">
+        <div class="login-box">
+            <img src="logo.png" alt="Logo" onerror="this.style.display='none'"> 
+            <h2>Pilih Lokasi</h2>
+            <p>Silakan inisialisasi area pengisian Anda</p>
+            
+            <select id="pilihanLokasi">
+                <option value="" disabled selected>-- Pilih Titik Pengisian --</option>
+                <option value="FT57">FT57</option>
+                <option value="FT73">FT73</option>
+                <option value="FT84">FT84</option>
+                <option value="FT85">FT85</option>
+                <option value="FT87">FT87</option>
+                <option value="FT88">FT88</option>
+                <option value="PS NORTH">PS NORTH</option>
+                <option value="PS ROAD 1">PS ROAD 1</option>
+            </select>
+            
+            <button class="btn-kirim" onclick="masukAplikasi()">MASUK SISTEM</button>
+        </div>
     </div>
 
-    <table id="monitoringTable">
-        <thead>
-            <tr>
-                <th>Jam Pengisian</th>
-                <th>No Lambung</th>
-                <th>Tipe Unit</th>
-                <th>Driver</th>
-                <th>HM</th>
-                <th>Qty Solar (L)</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <div id="layarUtama">
+        <div id="snackbar">✅ Data Berhasil Terkirim!</div>
+
+        <div class="header-container">
+            <img src="logo.png" alt="Logo" onerror="this.style.display='none'"> 
+            <h2>Pitpro Dashboard</h2>
+            <div id="infoLokasiTeks" class="info-lokasi">Lokasi: -</div>
+        </div>
+
+        <div class="input-section">
+            <h3>Form Pengisian Refueling</h3>
+            <button id="btnToggleCamera" class="btn-kamera">📷 Buka Kamera Scanner</button>
+            <div id="reader-container"><div id="reader"></div></div>
+            <div class="input-group">
+                <input type="text" id="barcodeInput" placeholder="Scan Barcode Unit..." readonly>
+                <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
+                <input type="number" id="hmInput" placeholder="HM Terakhir">
+                <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
+            </div>
+            <button id="btnKirim" class="btn-kirim">Kirim Data Pengisian</button>
+        </div>
+
+        <div class="table-container">
+            <table id="monitoringTable">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Shift</th>
+                        <th>Lokasi</th>
+                        <th>Jam Pengisian</th>
+                        <th>No Lambung</th>
+                        <th>Tipe Unit</th>
+                        <th>Driver</th>
+                        <th>HM</th>
+                        <th>Qty Solar (L)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        let lokasiAktif = ""; 
+
+        function masukAplikasi() {
+            const selectLokasi = document.getElementById('pilihanLokasi').value;
+            if (selectLokasi === "") {
+                alert("Harap pilih titik pengisian terlebih dahulu!");
+                return;
+            }
+            
+            lokasiAktif = selectLokasi; 
+            document.getElementById('infoLokasiTeks').innerText = "📍 " + lokasiAktif;
+            document.getElementById('layarAwal').style.display = 'none';
+            document.getElementById('layarUtama').style.display = 'block';
+        }
 
         const barcodeInput = document.getElementById('barcodeInput');
         const driverInput = document.getElementById('driverInput');
@@ -65,9 +194,9 @@
         const qtyInput = document.getElementById('qtyInput');
         const tableBody = document.getElementById('tableBody');
         const btnKirim = document.getElementById('btnKirim');
-        
         const btnToggleCamera = document.getElementById('btnToggleCamera');
         const readerContainer = document.getElementById('reader-container');
+        
         let html5QrcodeScanner;
         let cameraOpen = false;
 
@@ -80,19 +209,13 @@
             if(barcodeValue === "") { alert("Peringatan: Barcode belum discan!"); return; }
             if(driverValue === "") { alert("Peringatan: Nama Driver harus diisi!"); return; }
 
-            // Mengirim data ke server, SEKARANG TERMASUK NAMA DRIVER
-            socket.emit('inisialisasi_scan', { 
-                barcode: barcodeValue,
-                driver: driverValue,
-                hm: hmValue,
-                qty: qtyValue
-            });
+            btnKirim.innerText = "⏳ Mengirim...";
+            btnKirim.style.backgroundColor = "#7f8c8d";
+            btnKirim.disabled = true;
 
-            // Kosongkan form kembali setelah dikirim
-            barcodeInput.value = '';
-            driverInput.value = '';
-            hmInput.value = '';
-            qtyInput.value = '';
+            socket.emit('inisialisasi_scan', { 
+                barcode: barcodeValue, driver: driverValue, hm: hmValue, qty: qtyValue, lokasi: lokasiAktif
+            });
         }
 
         barcodeInput.addEventListener('keypress', function(event) { if (event.key === 'Enter') kirimData(); });
@@ -103,7 +226,7 @@
             if (!cameraOpen) {
                 readerContainer.style.display = 'block';
                 btnToggleCamera.innerText = 'Tutup Kamera';
-                btnToggleCamera.style.backgroundColor = '#dc3545';
+                btnToggleCamera.style.backgroundColor = 'var(--danger)';
                 html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 150} }, false);
                 html5QrcodeScanner.render(onScanSuccess, onScanFailure);
                 cameraOpen = true;
@@ -111,43 +234,62 @@
                 html5QrcodeScanner.clear().then(() => {
                     readerContainer.style.display = 'none';
                     btnToggleCamera.innerText = '📷 Buka Kamera Scanner';
-                    btnToggleCamera.style.backgroundColor = '#007bff';
+                    btnToggleCamera.style.backgroundColor = '#3498db';
                     cameraOpen = false;
                 });
             }
         });
 
-        function onScanSuccess(decodedText, decodedResult) {
+        function onScanSuccess(decodedText) {
             barcodeInput.value = decodedText;
             let audio = new Audio('https://www.soundjay.com/buttons/beep-07.wav');
             audio.play().catch(()=>{});
             html5QrcodeScanner.clear().then(() => {
                 readerContainer.style.display = 'none';
                 btnToggleCamera.innerText = '📷 Buka Kamera Scanner';
-                btnToggleCamera.style.backgroundColor = '#007bff';
+                btnToggleCamera.style.backgroundColor = '#3498db';
                 cameraOpen = false;
             });
-            // Fokus otomatis ke kolom driver setelah scan berhasil
             driverInput.focus();
         }
 
         function onScanFailure(error) {}
 
+        function tampilkanNotifikasiSukses() {
+            const snackbar = document.getElementById("snackbar");
+            snackbar.className = "show";
+            setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+        }
+
         socket.on('update_monitor', (data) => {
+            barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = '';
+            btnKirim.innerText = "Kirim Data Pengisian";
+            btnKirim.style.backgroundColor = "var(--success)";
+            btnKirim.disabled = false;
+
+            tampilkanNotifikasiSukses();
+
             const row = document.createElement('tr');
             row.innerHTML = `
+                <td>${data.tanggal}</td>
+                <td style="color: var(--accent-color); font-weight: bold;">${data.shift}</td>
+                <td style="color: var(--primary-color); font-weight: bold;">${data.lokasi}</td>
                 <td>${data.jam_pengisian}</td>
                 <td><strong>${data.no_lambung}</strong></td>
                 <td>${data.tipe_unit}</td>
                 <td>${data.driver}</td>
-                <td>${data.hm}</td>
-                <td><strong>${data.qty_solar}</strong></td>
-                <td style="color: green; font-weight: bold;">${data.status}</td>
+                <td style="font-size: 16px;"><strong>${data.qty_solar}</strong></td>
+                <td><span class="badge-status">${data.status}</span></td>
             `;
             tableBody.prepend(row);
         });
 
-        socket.on('error_scan', (pesan) => { alert(pesan); });
+        socket.on('error_scan', (pesan) => { 
+            alert(pesan); 
+            btnKirim.innerText = "Kirim Data Pengisian";
+            btnKirim.style.backgroundColor = "var(--success)";
+            btnKirim.disabled = false;
+        });
     </script>
 </body>
 </html>
