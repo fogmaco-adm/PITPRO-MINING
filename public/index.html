@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Refueling Realtime</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f7f6; }
         h2 { color: #333; text-align: center; }
@@ -12,24 +13,33 @@
         th { background-color: #f4b41a; color: #333; }
         .input-section { margin-bottom: 20px; padding: 20px; background: white; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .input-section h3 { margin-top: 0; color: #555; }
-        input { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        input[type="text"] { width: 250px; }
+        input { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
+        input[type="text"] { width: 200px; }
+        #reader-container { width: 100%; max-width: 500px; margin-bottom: 15px; display: none; margin-top: 10px;}
+        .btn-kamera { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-kamera:hover { background-color: #0056b3; }
+        .btn-kirim { padding: 10px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-kirim:hover { background-color: #218838; }
     </style>
 </head>
 <body>
 
     <h2>Live Monitoring Pitstop Refueling</h2>
 
-    <!-- Area Operator Pitstop -->
     <div class="input-section">
-        <h3>Operator Area: Scan Unit</h3>
-        <input type="text" id="barcodeInput" placeholder="Scan Barcode Unit di sini..." autofocus>
+        <h3>Operator Area: Form Pengisian</h3>
+        <button id="btnToggleCamera" class="btn-kamera">📷 Buka Kamera Scanner</button>
+        <div id="reader-container"><div id="reader"></div></div>
+        <br><br>
+        
+        <input type="text" id="barcodeInput" placeholder="Scan Barcode Unit..." readonly>
+        <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
         <input type="number" id="hmInput" placeholder="HM Terakhir">
         <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
-        <p><small><em>*Tekan <strong>Enter</strong> di kolom Barcode untuk mengirim data (jika tidak pakai alat scanner).</em></small></p>
+        
+        <button id="btnKirim" class="btn-kirim">Kirim Data</button>
     </div>
 
-    <!-- Layar Monitor Tabel Realtime -->
     <table id="monitoringTable">
         <thead>
             <tr>
@@ -42,43 +52,87 @@
                 <th>Status</th>
             </tr>
         </thead>
-        <tbody id="tableBody">
-            <!-- Data dari server akan masuk ke sini secara otomatis -->
-        </tbody>
+        <tbody id="tableBody"></tbody>
     </table>
 
-    <!-- Memanggil library Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
         const barcodeInput = document.getElementById('barcodeInput');
+        const driverInput = document.getElementById('driverInput');
         const hmInput = document.getElementById('hmInput');
         const qtyInput = document.getElementById('qtyInput');
         const tableBody = document.getElementById('tableBody');
+        const btnKirim = document.getElementById('btnKirim');
+        
+        const btnToggleCamera = document.getElementById('btnToggleCamera');
+        const readerContainer = document.getElementById('reader-container');
+        let html5QrcodeScanner;
+        let cameraOpen = false;
 
-        // Mengirim data saat operator menekan Enter di kolom barcode
-        barcodeInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                const barcodeValue = barcodeInput.value;
-                const hmValue = hmInput.value || 0;
-                const qtyValue = qtyInput.value || 0;
+        function kirimData() {
+            const barcodeValue = barcodeInput.value;
+            const driverValue = driverInput.value;
+            const hmValue = hmInput.value || 0;
+            const qtyValue = qtyInput.value || 0;
 
-                // Kirim ke server
-                socket.emit('inisialisasi_scan', { 
-                    barcode: barcodeValue,
-                    hm: hmValue,
-                    qty: qtyValue
+            if(barcodeValue === "") { alert("Peringatan: Barcode belum discan!"); return; }
+            if(driverValue === "") { alert("Peringatan: Nama Driver harus diisi!"); return; }
+
+            // Mengirim data ke server, SEKARANG TERMASUK NAMA DRIVER
+            socket.emit('inisialisasi_scan', { 
+                barcode: barcodeValue,
+                driver: driverValue,
+                hm: hmValue,
+                qty: qtyValue
+            });
+
+            // Kosongkan form kembali setelah dikirim
+            barcodeInput.value = '';
+            driverInput.value = '';
+            hmInput.value = '';
+            qtyInput.value = '';
+        }
+
+        barcodeInput.addEventListener('keypress', function(event) { if (event.key === 'Enter') kirimData(); });
+        driverInput.addEventListener('keypress', function(event) { if (event.key === 'Enter') kirimData(); });
+        btnKirim.addEventListener('click', kirimData);
+
+        btnToggleCamera.addEventListener('click', () => {
+            if (!cameraOpen) {
+                readerContainer.style.display = 'block';
+                btnToggleCamera.innerText = 'Tutup Kamera';
+                btnToggleCamera.style.backgroundColor = '#dc3545';
+                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 150} }, false);
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                cameraOpen = true;
+            } else {
+                html5QrcodeScanner.clear().then(() => {
+                    readerContainer.style.display = 'none';
+                    btnToggleCamera.innerText = '📷 Buka Kamera Scanner';
+                    btnToggleCamera.style.backgroundColor = '#007bff';
+                    cameraOpen = false;
                 });
-
-                // Kosongkan form kembali untuk unit selanjutnya
-                barcodeInput.value = '';
-                hmInput.value = '';
-                qtyInput.value = '';
             }
         });
 
-        // Menerima update data dari server dan menampilkannya di tabel
+        function onScanSuccess(decodedText, decodedResult) {
+            barcodeInput.value = decodedText;
+            let audio = new Audio('https://www.soundjay.com/buttons/beep-07.wav');
+            audio.play().catch(()=>{});
+            html5QrcodeScanner.clear().then(() => {
+                readerContainer.style.display = 'none';
+                btnToggleCamera.innerText = '📷 Buka Kamera Scanner';
+                btnToggleCamera.style.backgroundColor = '#007bff';
+                cameraOpen = false;
+            });
+            // Fokus otomatis ke kolom driver setelah scan berhasil
+            driverInput.focus();
+        }
+
+        function onScanFailure(error) {}
+
         socket.on('update_monitor', (data) => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -90,14 +144,10 @@
                 <td><strong>${data.qty_solar}</strong></td>
                 <td style="color: green; font-weight: bold;">${data.status}</td>
             `;
-            // Masukkan data ke baris paling atas
             tableBody.prepend(row);
         });
 
-        // Menampilkan pesan error jika barcode salah
-        socket.on('error_scan', (pesan) => {
-            alert(pesan);
-        });
+        socket.on('error_scan', (pesan) => { alert(pesan); });
     </script>
 </body>
 </html>

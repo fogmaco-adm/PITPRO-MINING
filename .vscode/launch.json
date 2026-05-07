@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jalankan Server Pitstop",
+            "program": "${workspaceFolder}/server.js",
+            "serverReadyAction": {
+                "pattern": "Server berjalan di (https?://localhost:[0-9]+)",
+                "uriFormat": "%s",
+                "action": "openExternally"
+            }
+        }
+    ]
+}
