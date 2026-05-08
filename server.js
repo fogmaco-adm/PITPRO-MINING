@@ -4,7 +4,6 @@ const { Server } = require('socket.io');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
 
-// 1. PENGATURAN KREDENSIAL DAN ID SHEETS
 const KREDENSIAL_BOT = require('./pitpro-mining-099fac71377a.json');
 const ID_SPREADSHEET = '1k2hvrh71xRtbV0HfF2AYUCLj0Szy2ip3qViSHnVhxLI';
 
@@ -19,7 +18,6 @@ const server = http.createServer(app);
 const io = new Server(server);
 app.use(express.static('public'));
 
-// 2. SISTEM DATABASE DARI TAB 'MASTER_UNIT' GOOGLE SHEETS
 let databaseUnit = {}; 
 
 async function muatDataUnit() {
@@ -36,59 +34,63 @@ async function muatDataUnit() {
                 tipe_unit: row.get('TIPE UNIT')
             };
         });
-        console.log('✅ Database berhasil disinkronisasi: ' + rows.length + ' unit.');
+        console.log('✅ Database Master Unit Siap.');
     } catch (err) {
-        console.error('❌ Gagal sinkronisasi data master unit:', err);
+        console.error('❌ Gagal sinkronisasi data master:', err);
     }
 }
 muatDataUnit();
 
-// 3. LOGIKA WEBSOCKET (KOMUNIKASI DENGAN WEB DAN SHEETS)
 io.on('connection', (socket) => {
-    console.log('💻 Halaman Web Operator Terhubung');
-
     socket.on('inisialisasi_scan', async (data) => {
         await muatDataUnit();
         const infoUnit = databaseUnit[data.barcode];
 
         if (infoUnit) {
-            // MENDAPATKAN WAKTU AKTUAL
-            const sekarang = new Date();
-            const tanggalPengisian = sekarang.toLocaleDateString('id-ID'); // Format DD/MM/YYYY
-            const jamSaatIni = sekarang.toLocaleTimeString('id-ID'); // Format HH:MM:SS
-            
-            // LOGIKA PEMBAGIAN SHIFT
-            const jam = sekarang.getHours();
-            const menit = sekarang.getMinutes();
-            const waktuDesimal = jam + (menit / 100); 
-
-            let namaShift = "Shift 2"; // Default
-            // Jika waktu antara 05.59 (5.59) sampai 18.00 (18.00)
-            if (waktuDesimal >= 5.59 && waktuDesimal <= 18.00) {
-                namaShift = "Shift 1";
-            }
-            
-            const dataBaru = {
-                tanggal: tanggalPengisian,
-                shift: namaShift,
-                lokasi: data.lokasi,
-                no_lambung: infoUnit.no_lambung,
-                tipe_unit: infoUnit.tipe_unit,
-                driver: data.driver, 
-                hm: data.hm,
-                qty_solar: data.qty,
-                jam_pengisian: jamSaatIni,
-                status: 'Selesai'
-            };
-
-            socket.emit('update_monitor', dataBaru);
-
             try {
                 const doc = new GoogleSpreadsheet(ID_SPREADSHEET, auth);
                 await doc.loadInfo();
                 const sheetLog = doc.sheetsByIndex[0]; 
+                const rowsLog = await sheetLog.getRows();
 
-                // Menyisipkan Tanggal dan Shift ke Google Sheets
+                // --- FITUR AUDIT HM HISTORIS ---
+                // Mencari baris terakhir untuk unit ini (No Lambung)
+                let hmTerakhir = 0;
+                for (let i = rowsLog.length - 1; i >= 0; i--) {
+                    if (rowsLog[i].get('KODE UNIT') === infoUnit.no_lambung) {
+                        hmTerakhir = parseFloat(rowsLog[i].get('HM/KM')) || 0;
+                        break;
+                    }
+                }
+
+                // Bandingkan HM input dengan HM terakhir di database
+                if (parseFloat(data.hm) < hmTerakhir) {
+                    socket.emit('error_scan', `❌ HM MUNDUR! Unit ${infoUnit.no_lambung} terakhir tercatat di HM ${hmTerakhir}. Input Anda (${data.hm}) ditolak!`);
+                    return; // Berhenti di sini, jangan simpan data
+                }
+
+                const sekarang = new Date();
+                const tanggalPengisian = sekarang.toLocaleDateString('id-ID'); 
+                const jamSaatIni = sekarang.toLocaleTimeString('id-ID'); 
+                const jam = sekarang.getHours();
+                const menit = sekarang.getMinutes();
+                const waktuDesimal = jam + (menit / 100); 
+
+                let namaShift = (waktuDesimal >= 5.59 && waktuDesimal <= 18.00) ? "Shift 1" : "Shift 2";
+                
+                const dataBaru = {
+                    tanggal: tanggalPengisian,
+                    shift: namaShift,
+                    lokasi: data.lokasi,
+                    no_lambung: infoUnit.no_lambung,
+                    tipe_unit: infoUnit.tipe_unit,
+                    driver: data.driver, 
+                    hm: data.hm,
+                    qty_solar: data.qty,
+                    jam_pengisian: jamSaatIni,
+                    status: 'Selesai'
+                };
+
                 await sheetLog.addRow({
                     'TANGGAL': dataBaru.tanggal,
                     'LOKASI': dataBaru.lokasi,
@@ -101,13 +103,16 @@ io.on('connection', (socket) => {
                     'NAMA DRIVER': dataBaru.driver,
                     'NAMA FUELMAN': "Bot Realtime"
                 });
-                console.log(`✅ Data ${dataBaru.no_lambung} berhasil disimpan! (${namaShift})`);
-            } catch (error) {
-                console.error('❌ Error menulis ke Google Sheets:', error);
-            }
 
+                socket.emit('update_monitor', dataBaru);
+                console.log(`✅ Sukses: ${dataBaru.no_lambung} pada HM ${dataBaru.hm}`);
+
+            } catch (error) {
+                console.error('❌ Error sistem:', error);
+                socket.emit('error_scan', 'Terjadi kesalahan pada koneksi database.');
+            }
         } else {
-            socket.emit('error_scan', 'Peringatan: Barcode tidak dikenali di sistem (Master Unit)!');
+            socket.emit('error_scan', 'Peringatan: Barcode tidak terdaftar di Master Unit!');
         }
     });
 });
