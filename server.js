@@ -71,6 +71,7 @@ io.on('connection', (socket) => {
             const dataBaru = {
                 tanggal: tanggalPengisian,
                 shift: namaShift,
+                lokasi: data.lokasi,
                 no_lambung: infoUnit.no_lambung,
                 tipe_unit: infoUnit.tipe_unit,
                 driver: data.driver, 
@@ -90,6 +91,7 @@ io.on('connection', (socket) => {
                 // Menyisipkan Tanggal dan Shift ke Google Sheets
                 await sheetLog.addRow({
                     'TANGGAL': dataBaru.tanggal,
+                    'LOKASI': dataBaru.lokasi,
                     'SHIFT': dataBaru.shift,
                     'KODE UNIT': dataBaru.no_lambung,
                     'MODEL UNIT': dataBaru.tipe_unit,
