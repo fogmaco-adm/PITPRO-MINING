@@ -3,8 +3,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
+const { exec } = require('child_process'); // <--- Mantra pemanggil browser dipindah ke atas
 
-// Pastikan nama file JSON ini sesuai dengan yang ada di folder Anda
 const KREDENSIAL_BOT = require('./pitpro-mining-099fac71377a.json');
 const ID_SPREADSHEET = '1k2hvrh71xRtbV0HfF2AYUCLj0Szy2ip3qViSHnVhxLI';
 
@@ -19,10 +19,8 @@ const server = http.createServer(app);
 const io = new Server(server);
 app.use(express.static('public'));
 
-// Variabel memori lokal (Cache) agar loading super cepat
 let databaseUnit = {}; 
 
-// FUNGSI INI HANYA DIJALANKAN SEKALI SAAT SERVER NYALA
 async function muatDataUnit() {
     try {
         const doc = new GoogleSpreadsheet(ID_SPREADSHEET, auth);
@@ -35,9 +33,7 @@ async function muatDataUnit() {
             databaseUnit[row.get('BARCODE')] = {
                 no_lambung: row.get('NO LAMBUNG'),
                 tipe_unit: row.get('TIPE UNIT'),
-                // Mengambil HM terakhir dari master unit
                 hm_terakhir: parseFloat(row.get('HM TERAKHIR')) || 0,
-                // Menyimpan "kunci" baris ini agar server bisa menimpa angkanya nanti
                 row_reference: row 
             };
         });
@@ -50,25 +46,33 @@ muatDataUnit();
 
 io.on('connection', (socket) => {
     socket.on('inisialisasi_scan', async (data) => {
-        // AMBIL DATA DARI HAFALAN SERVER (SUPER CEPAT!)
         const infoUnit = databaseUnit[data.barcode];
 
         if (infoUnit) {
             try {
-                // --- AUDIT HM KILAT ---
                 if (parseFloat(data.hm) < infoUnit.hm_terakhir) {
                     socket.emit('error_scan', `❌ HM MUNDUR! Unit ${infoUnit.no_lambung} terakhir tercatat di HM ${infoUnit.hm_terakhir}. Input Anda (${data.hm}) ditolak!`);
-                    return; // Berhenti dan batalkan pengiriman
+                    return; 
                 }
 
+                // --- GANTI DENGAN KODE TANGGAL OPERASIONAL INI ---
                 const sekarang = new Date();
-                const tanggalPengisian = sekarang.toLocaleDateString('id-ID'); 
                 const jamSaatIni = sekarang.toLocaleTimeString('id-ID'); 
                 const jam = sekarang.getHours();
-                const menit = sekarang.getMinutes();
-                const waktuDesimal = jam + (menit / 100); 
 
-                let namaShift = (waktuDesimal >= 5.59 && waktuDesimal <= 18.00) ? "Shift 1" : "Shift 2";
+                // 1. Penentuan Shift Tambang
+                // Shift 1: Jam 06:00 pagi s/d 17:59 sore
+                // Shift 2: Jam 18:00 sore s/d 05:59 pagi
+                let namaShift = (jam >= 6 && jam < 18) ? "Shift 1" : "Shift 2";
+
+                // 2. Penentuan Tanggal Operasional (Production Date)
+                let waktuOperasional = new Date(sekarang);
+                // Jika pengisian terjadi antara jam 00:00 (tengah malam) sampai 05:59 pagi...
+                if (jam >= 0 && jam < 6) {
+                    // ...maka paksa tanggalnya mundur 1 hari (H-1)
+                    waktuOperasional.setDate(waktuOperasional.getDate() - 1);
+                }
+                const tanggalPengisian = waktuOperasional.toLocaleDateString('id-ID');
                 
                 const dataBaru = {
                     tanggal: tanggalPengisian,
@@ -85,9 +89,8 @@ io.on('connection', (socket) => {
 
                 const doc = new GoogleSpreadsheet(ID_SPREADSHEET, auth);
                 await doc.loadInfo();
-                const sheetLog = doc.sheetsByIndex[0]; // Log Pengisian Utama (Tab Paling Kiri)
+                const sheetLog = doc.sheetsByIndex[0]; 
 
-                // 1. TULIS LOG KE TAB PENGISIAN BBM
                 await sheetLog.addRow({
                     'TANGGAL': dataBaru.tanggal,
                     'LOKASI': dataBaru.lokasi,
@@ -101,11 +104,9 @@ io.on('connection', (socket) => {
                     'NAMA FUELMAN': "Bot Realtime"
                 });
 
-                // 2. UPDATE KOLOM 'HM TERAKHIR' DI TAB MASTER UNIT
                 infoUnit.row_reference.set('HM TERAKHIR', dataBaru.hm);
                 await infoUnit.row_reference.save();
 
-                // 3. UPDATE HAFALAN SERVER LOKAL AGAR TIDAK PERLU RESTART SERVER
                 infoUnit.hm_terakhir = parseFloat(dataBaru.hm);
 
                 socket.emit('update_monitor', dataBaru);
@@ -123,4 +124,6 @@ io.on('connection', (socket) => {
 
 server.listen(3000, () => {
     console.log('🚀 Server berjalan di http://localhost:3000');
+    // --- Membuka browser otomatis setelah server nyala ---
+    exec('start http://localhost:3000'); 
 });
