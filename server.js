@@ -3,7 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
-const { exec } = require('child_process'); // <--- Mantra pemanggil browser dipindah ke atas
+const { exec } = require('child_process'); 
 
 const KREDENSIAL_BOT = require('./pitpro-mining-099fac71377a.json');
 const ID_SPREADSHEET = '1k2hvrh71xRtbV0HfF2AYUCLj0Szy2ip3qViSHnVhxLI';
@@ -50,30 +50,49 @@ io.on('connection', (socket) => {
 
         if (infoUnit) {
             try {
+                // 1. TENTUKAN WAKTU & SHIFT OPERASIONAL
+                const sekarang = new Date();
+                const jamSaatIni = sekarang.toLocaleTimeString('id-ID'); 
+                const jam = sekarang.getHours();
+
+                let namaShift = (jam >= 6 && jam < 18) ? "Shift 1" : "Shift 2";
+
+                let waktuOperasional = new Date(sekarang);
+                if (jam >= 0 && jam < 6) { waktuOperasional.setDate(waktuOperasional.getDate() - 1); }
+                const tanggalPengisian = waktuOperasional.toLocaleDateString('id-ID');
+
+                // 2. VALIDASI GANJIL/GENAP (KHUSUS DT & HD)
+                const noLambung = infoUnit.no_lambung.toUpperCase();
+                if (noLambung.includes('DT') || noLambung.includes('HD')) {
+                    
+                    // Ekstrak angka saja dari no lambung (contoh: DT090-0761 jadi 0900761)
+                    const angkaSaja = noLambung.replace(/\D/g, ''); 
+                    
+                    if (angkaSaja.length > 0) {
+                        const digitTerakhir = parseInt(angkaSaja.slice(-1)); // Ambil angka paling buntut
+                        const isGenap = (digitTerakhir % 2 === 0);
+
+                        // Jika operator TIDAK mencentang tombol izin bypass
+                        if (!data.izin_shift) {
+                            if (isGenap && namaShift === "Shift 1") {
+                                socket.emit('error_scan', `❌ DITOLAK: Unit GENAP (${infoUnit.no_lambung}) hanya boleh isi di Shift 2!\n\nCentang kotak 'Izinkan Bypass' jika ada instruksi khusus.`);
+                                return;
+                            }
+                            if (!isGenap && namaShift === "Shift 2") {
+                                socket.emit('error_scan', `❌ DITOLAK: Unit GANJIL (${infoUnit.no_lambung}) hanya boleh isi di Shift 1!\n\nCentang kotak 'Izinkan Bypass' jika ada instruksi khusus.`);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                // 3. AUDIT HM HISTORIS
                 if (parseFloat(data.hm) < infoUnit.hm_terakhir) {
                     socket.emit('error_scan', `❌ HM MUNDUR! Unit ${infoUnit.no_lambung} terakhir tercatat di HM ${infoUnit.hm_terakhir}. Input Anda (${data.hm}) ditolak!`);
                     return; 
                 }
 
-                // --- GANTI DENGAN KODE TANGGAL OPERASIONAL INI ---
-                const sekarang = new Date();
-                const jamSaatIni = sekarang.toLocaleTimeString('id-ID'); 
-                const jam = sekarang.getHours();
-
-                // 1. Penentuan Shift Tambang
-                // Shift 1: Jam 06:00 pagi s/d 17:59 sore
-                // Shift 2: Jam 18:00 sore s/d 05:59 pagi
-                let namaShift = (jam >= 6 && jam < 18) ? "Shift 1" : "Shift 2";
-
-                // 2. Penentuan Tanggal Operasional (Production Date)
-                let waktuOperasional = new Date(sekarang);
-                // Jika pengisian terjadi antara jam 00:00 (tengah malam) sampai 05:59 pagi...
-                if (jam >= 0 && jam < 6) {
-                    // ...maka paksa tanggalnya mundur 1 hari (H-1)
-                    waktuOperasional.setDate(waktuOperasional.getDate() - 1);
-                }
-                const tanggalPengisian = waktuOperasional.toLocaleDateString('id-ID');
-                
+                // 4. SUSUN DATA UNTUK EXCEL
                 const dataBaru = {
                     tanggal: tanggalPengisian,
                     shift: namaShift,
@@ -84,13 +103,14 @@ io.on('connection', (socket) => {
                     hm: data.hm,
                     qty_solar: data.qty,
                     jam_pengisian: jamSaatIni,
-                    status: 'Selesai'
+                    status: data.izin_shift ? 'Selesai (Bypass Shift)' : 'Selesai' // Tandai jika dia pakai bypass
                 };
 
                 const doc = new GoogleSpreadsheet(ID_SPREADSHEET, auth);
                 await doc.loadInfo();
                 const sheetLog = doc.sheetsByIndex[0]; 
 
+                // 5. TULIS LOG KE TAB PENGISIAN BBM
                 await sheetLog.addRow({
                     'TANGGAL': dataBaru.tanggal,
                     'LOKASI': dataBaru.lokasi,
@@ -104,9 +124,11 @@ io.on('connection', (socket) => {
                     'NAMA FUELMAN': "Bot Realtime"
                 });
 
+                // 6. UPDATE KOLOM 'HM TERAKHIR' DI TAB MASTER UNIT
                 infoUnit.row_reference.set('HM TERAKHIR', dataBaru.hm);
                 await infoUnit.row_reference.save();
 
+                // 7. UPDATE HAFALAN SERVER LOKAL 
                 infoUnit.hm_terakhir = parseFloat(dataBaru.hm);
 
                 socket.emit('update_monitor', dataBaru);
@@ -124,6 +146,5 @@ io.on('connection', (socket) => {
 
 server.listen(3000, () => {
     console.log('🚀 Server berjalan di http://localhost:3000');
-    // --- Membuka browser otomatis setelah server nyala ---
     exec('start http://localhost:3000'); 
 });

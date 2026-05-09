@@ -15,28 +15,14 @@
         
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-dark); margin: 0; padding: 0; }
         
-        /* === DESAIN LAYAR AWAL (LOGIN LOKASI) === */
-        #layarAwal {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; padding: 20px;
-        }
-        .login-box {
-            background: var(--primary-color); 
-            padding: 40px 30px; border-radius: 12px; text-align: center; 
-            width: 100%; max-width: 400px; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            border-bottom: 6px solid var(--accent-color);
-        }
+        #layarAwal { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .login-box { background: var(--primary-color); padding: 40px 30px; border-radius: 12px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); border-bottom: 6px solid var(--accent-color); }
         .login-box img { max-width: 100%; height: 70px; margin-bottom: 20px; object-fit: contain; }
         .login-box h2 { color: var(--white); margin-top: 0; margin-bottom: 5px; text-transform: uppercase;}
         .login-box p { color: #ecf0f1; font-size: 14px; margin-bottom: 25px; }
-        .login-box select {
-            width: 100%; padding: 15px; margin-bottom: 25px; border: 2px solid #bdc3c7; 
-            border-radius: 8px; font-size: 16px; font-weight: bold; color: var(--primary-color);
-            background-color: #f9f9f9; outline: none; transition: 0.3s; cursor: pointer;
-        }
+        .login-box select { width: 100%; padding: 15px; margin-bottom: 25px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 16px; font-weight: bold; color: var(--primary-color); background-color: #f9f9f9; outline: none; transition: 0.3s; cursor: pointer; }
         .login-box select:focus { border-color: var(--accent-color); }
 
-        /* === DESAIN LAYAR UTAMA (DASHBOARD) === */
         #layarUtama { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; } 
         
         .header-container { display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); padding: 15px 20px; border-radius: 8px 8px 0 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-bottom: 5px solid var(--accent-color); margin-bottom: 20px; position: relative;}
@@ -44,20 +30,6 @@
         .header-container h2 { color: var(--white); margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
         .info-lokasi { position: absolute; right: 20px; background: var(--accent-color); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;}
         
-        /* === PANEL REKAP HARIAN (FITUR BARU) === */
-        .recap-container {
-            display: flex; justify-content: space-between; gap: 15px; margin-bottom: 25px;
-        }
-        .recap-box {
-            flex: 1; background: var(--white); padding: 20px; border-radius: 8px;
-            border-left: 5px solid var(--success); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        .recap-box:nth-child(2) { border-left-color: #3498db; }
-        .recap-box h4 { margin: 0 0 10px 0; color: #7f8c8d; font-size: 14px; text-transform: uppercase; }
-        .recap-box .angka { font-size: 28px; font-weight: bold; color: var(--primary-color); margin: 0;}
-        .recap-box .satuan { font-size: 14px; color: #95a5a6; }
-
         .input-section { background: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 5px solid var(--accent-color); }
         .input-section h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; }
         .input-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
@@ -84,19 +56,14 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* === TAMPILAN RESPONSIVE UNTUK HP === */
         @media screen and (max-width: 768px) {
             .header-container { flex-direction: column; text-align: center; padding: 15px; }
             .header-container img { margin-right: 0; margin-bottom: 10px; height: 40px; }
             .header-container h2 { font-size: 18px; margin-bottom: 10px;}
             .info-lokasi { position: static; display: inline-block; }
-            
-            .recap-container { flex-direction: column; } /* Tumpuk panel rekap di HP */
-            
             .input-section { padding: 15px; }
             .btn-kamera { width: 100%; }
             input[type="text"], input[type="number"] { flex: 1 1 100%; margin-right: 0; }
-            
             .table-container { background: transparent; box-shadow: none; }
             table, thead, tbody, th, td, tr { display: block; }
             thead tr { position: absolute; top: -9999px; left: -9999px; }
@@ -104,16 +71,15 @@
             td { border: none; border-bottom: 1px solid #eee; position: relative; padding: 12px 10px 12px 45%; text-align: right; font-size: 14px; }
             td:last-child { border-bottom: none; }
             td:before { position: absolute; top: 12px; left: 15px; width: 40%; white-space: nowrap; text-align: left; font-weight: bold; color: var(--primary-color); }
-            
             td:nth-of-type(1):before { content: "Tanggal"; }
             td:nth-of-type(2):before { content: "Shift"; }
             td:nth-of-type(3):before { content: "Lokasi"; }
-            td:nth-of-type(4):before { content: "Jam Pengisian"; }
+            td:nth-of-type(4):before { content: "Jam"; }
             td:nth-of-type(5):before { content: "No Lambung"; }
             td:nth-of-type(6):before { content: "Tipe Unit"; }
             td:nth-of-type(7):before { content: "Driver"; }
             td:nth-of-type(8):before { content: "HM"; }
-            td:nth-of-type(9):before { content: "Qty Solar (L)"; }
+            td:nth-of-type(9):before { content: "Qty (L)"; }
             td:nth-of-type(10):before { content: "Status"; }
         }
     </style>
@@ -125,7 +91,6 @@
             <img src="logo.png" alt="Logo" onerror="this.style.display='none'"> 
             <h2>Pilih Lokasi</h2>
             <p>Silakan inisialisasi area pengisian Anda</p>
-            
             <select id="pilihanLokasi">
                 <option value="" disabled selected>-- Pilih Titik Pengisian --</option>
                 <option value="FT57">FT57</option>
@@ -136,32 +101,19 @@
                 <option value="FT88">FT88</option>
                 <option value="PS NORTH KANAN">PS NORTH KANAN</option>
                 <option value="PS NORTH KIRI">PS NORTH KIRI</option>
-                <option value="PS ROAD1 KANAN">PS ROAD1 KANAN</option>
-                <option value="PS ROAD1 KIRI">PS ROAD1 KIRI</option>
+                <option value="PS ROAD 1 KANAN">PS ROAD 1 KANAN</option>
+                <option value="PS ROAD 1 KIRI">PS ROAD 1 KIRI</option>
             </select>
-            
             <button class="btn-kirim" onclick="masukAplikasi()">MASUK SISTEM</button>
         </div>
     </div>
 
     <div id="layarUtama">
         <div id="snackbar">✅ Data Berhasil Terkirim!</div>
-
         <div class="header-container">
             <img src="logo.png" alt="Logo" onerror="this.style.display='none'"> 
             <h2>Pitpro Dashboard</h2>
             <div id="infoLokasiTeks" class="info-lokasi">Lokasi: -</div>
-        </div>
-
-        <div class="recap-container">
-            <div class="recap-box">
-                <h4>Total Pengeluaran Solar</h4>
-                <p class="angka"><span id="teksTotalSolar">0</span> <span class="satuan">Liter</span></p>
-            </div>
-            <div class="recap-box">
-                <h4>Unit Dilayani</h4>
-                <p class="angka"><span id="teksTotalUnit">0</span> <span class="satuan">Unit</span></p>
-            </div>
         </div>
 
         <div class="input-section">
@@ -174,6 +126,15 @@
                 <input type="number" id="hmInput" placeholder="HM Terakhir">
                 <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
             </div>
+            
+            <!-- FITUR BARU: CHECKBOX IZIN BYPASS -->
+            <div style="margin-bottom: 15px; padding: 10px; background-color: #fcebeb; border-radius: 6px; border: 1px dashed var(--danger);">
+                <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--danger); font-size: 14px; cursor: pointer;">
+                    <input type="checkbox" id="izinShiftInput" style="width: 20px; height: 20px; cursor: pointer;">
+                    Izinkan Bypass (Khusus Pengisian DT/HD Beda Shift)
+                </label>
+            </div>
+
             <button id="btnKirim" class="btn-kirim">Kirim Data Pengisian</button>
         </div>
 
@@ -202,18 +163,10 @@
     <script>
         const socket = io();
         let lokasiAktif = ""; 
-        
-        // Variabel untuk menyimpan hitungan rekap
-        let totalSolarHarian = 0;
-        let totalUnitHarian = 0;
 
         function masukAplikasi() {
             const selectLokasi = document.getElementById('pilihanLokasi').value;
-            if (selectLokasi === "") {
-                alert("Harap pilih titik pengisian terlebih dahulu!");
-                return;
-            }
-            
+            if (selectLokasi === "") { alert("Harap pilih titik pengisian terlebih dahulu!"); return; }
             lokasiAktif = selectLokasi; 
             document.getElementById('infoLokasiTeks').innerText = "📍 " + lokasiAktif;
             document.getElementById('layarAwal').style.display = 'none';
@@ -224,6 +177,7 @@
         const driverInput = document.getElementById('driverInput');
         const hmInput = document.getElementById('hmInput');
         const qtyInput = document.getElementById('qtyInput');
+        const izinShiftInput = document.getElementById('izinShiftInput'); // Tangkap elemen checkbox
         const tableBody = document.getElementById('tableBody');
         const btnKirim = document.getElementById('btnKirim');
         const btnToggleCamera = document.getElementById('btnToggleCamera');
@@ -235,30 +189,22 @@
         function kirimData() {
             const barcodeValue = barcodeInput.value;
             const driverValue = driverInput.value;
-            const hmValue = parseFloat(hmInput.value); // Diubah menjadi angka
-            const qtyValue = parseFloat(qtyInput.value); // Diubah menjadi angka
+            const hmValue = parseFloat(hmInput.value); 
+            const qtyValue = parseFloat(qtyInput.value); 
+            const izinShiftValue = izinShiftInput.checked; // Baca status centang
 
             if(barcodeValue === "") { alert("Peringatan: Barcode belum discan!"); return; }
             if(driverValue === "") { alert("Peringatan: Nama Driver harus diisi!"); return; }
-            
-            // === FITUR BARU: VALIDASI HM & SOLAR ===
-            if(isNaN(hmValue) || hmValue <= 0) { 
-                alert("❌ DITOLAK: Angka HM tidak valid! Pastikan Anda mengisi HM dengan benar (tidak boleh 0 atau minus)."); 
-                hmInput.focus();
-                return; 
-            }
-            if(isNaN(qtyValue) || qtyValue <= 0) { 
-                alert("❌ DITOLAK: Quantity Solar tidak valid! (tidak boleh 0 atau minus)."); 
-                qtyInput.focus();
-                return; 
-            }
+            if(isNaN(hmValue) || hmValue <= 0) { alert("❌ DITOLAK: Angka HM tidak valid!"); hmInput.focus(); return; }
+            if(isNaN(qtyValue) || qtyValue <= 0) { alert("❌ DITOLAK: Quantity Solar tidak valid!"); qtyInput.focus(); return; }
 
             btnKirim.innerText = "⏳ Mengirim...";
             btnKirim.style.backgroundColor = "#7f8c8d";
             btnKirim.disabled = true;
 
             socket.emit('inisialisasi_scan', { 
-                barcode: barcodeValue, driver: driverValue, hm: hmValue, qty: qtyValue, lokasi: lokasiAktif
+                barcode: barcodeValue, driver: driverValue, hm: hmValue, qty: qtyValue, 
+                lokasi: lokasiAktif, izin_shift: izinShiftValue // Kirim status izin ke server
             });
         }
 
@@ -306,20 +252,15 @@
         }
 
         socket.on('update_monitor', (data) => {
+            // Reset semua input setelah sukses
             barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = '';
+            izinShiftInput.checked = false; // Hilangkan centang otomatis
+            
             btnKirim.innerText = "Kirim Data Pengisian";
             btnKirim.style.backgroundColor = "var(--success)";
             btnKirim.disabled = false;
 
             tampilkanNotifikasiSukses();
-
-            // === FITUR BARU: MENGHITUNG REKAP HARIAN ===
-            totalSolarHarian += parseFloat(data.qty_solar);
-            totalUnitHarian += 1;
-            
-            // Mengupdate angka di kotak rekap
-            document.getElementById('teksTotalSolar').innerText = totalSolarHarian.toLocaleString('id-ID'); // Format ribuan
-            document.getElementById('teksTotalUnit').innerText = totalUnitHarian;
 
             const row = document.createElement('tr');
             row.innerHTML = `
