@@ -64,15 +64,12 @@ io.on('connection', (socket) => {
                 // 2. VALIDASI GANJIL/GENAP (KHUSUS DT & HD)
                 const noLambung = infoUnit.no_lambung.toUpperCase();
                 if (noLambung.includes('DT') || noLambung.includes('HD')) {
-                    
-                    // Ekstrak angka saja dari no lambung (contoh: DT090-0761 jadi 0900761)
                     const angkaSaja = noLambung.replace(/\D/g, ''); 
                     
                     if (angkaSaja.length > 0) {
-                        const digitTerakhir = parseInt(angkaSaja.slice(-1)); // Ambil angka paling buntut
+                        const digitTerakhir = parseInt(angkaSaja.slice(-1)); 
                         const isGenap = (digitTerakhir % 2 === 0);
 
-                        // Jika operator TIDAK mencentang tombol izin bypass
                         if (!data.izin_shift) {
                             if (isGenap && namaShift === "Shift 1") {
                                 socket.emit('error_scan', `❌ DITOLAK: Unit GENAP (${infoUnit.no_lambung}) hanya boleh isi di Shift 2!\n\nCentang kotak 'Izinkan Bypass' jika ada instruksi khusus.`);
@@ -100,10 +97,11 @@ io.on('connection', (socket) => {
                     no_lambung: infoUnit.no_lambung,
                     tipe_unit: infoUnit.tipe_unit,
                     driver: data.driver, 
+                    fuelman: data.fuelman, // DATA FUELMAN DITANGKAP
                     hm: data.hm,
                     qty_solar: data.qty,
                     jam_pengisian: jamSaatIni,
-                    status: data.izin_shift ? 'Selesai (Bypass Shift)' : 'Selesai' // Tandai jika dia pakai bypass
+                    status: data.izin_shift ? 'Selesai (Bypass Shift)' : 'Selesai' 
                 };
 
                 const doc = new GoogleSpreadsheet(ID_SPREADSHEET, auth);
@@ -121,7 +119,7 @@ io.on('connection', (socket) => {
                     'QTY SOLAR': dataBaru.qty_solar,
                     'JAM': dataBaru.jam_pengisian,
                     'NAMA DRIVER': dataBaru.driver,
-                    'NAMA FUELMAN': "Bot Realtime"
+                    'NAMA FUELMAN': dataBaru.fuelman // MASUKKAN KE GOOGLE SHEETS
                 });
 
                 // 6. UPDATE KOLOM 'HM TERAKHIR' DI TAB MASTER UNIT
@@ -132,7 +130,7 @@ io.on('connection', (socket) => {
                 infoUnit.hm_terakhir = parseFloat(dataBaru.hm);
 
                 socket.emit('update_monitor', dataBaru);
-                console.log(`✅ Sukses: ${dataBaru.no_lambung} mengisi BBM. HM diupdate ke ${dataBaru.hm}!`);
+                console.log(`✅ Sukses: ${dataBaru.no_lambung} dilayani oleh ${dataBaru.fuelman}!`);
 
             } catch (error) {
                 console.error('❌ Error sistem:', error);

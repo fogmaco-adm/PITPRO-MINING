@@ -71,6 +71,7 @@
             td { border: none; border-bottom: 1px solid #eee; position: relative; padding: 12px 10px 12px 45%; text-align: right; font-size: 14px; }
             td:last-child { border-bottom: none; }
             td:before { position: absolute; top: 12px; left: 15px; width: 40%; white-space: nowrap; text-align: left; font-weight: bold; color: var(--primary-color); }
+            
             td:nth-of-type(1):before { content: "Tanggal"; }
             td:nth-of-type(2):before { content: "Shift"; }
             td:nth-of-type(3):before { content: "Lokasi"; }
@@ -78,9 +79,10 @@
             td:nth-of-type(5):before { content: "No Lambung"; }
             td:nth-of-type(6):before { content: "Tipe Unit"; }
             td:nth-of-type(7):before { content: "Driver"; }
-            td:nth-of-type(8):before { content: "HM"; }
-            td:nth-of-type(9):before { content: "Qty (L)"; }
-            td:nth-of-type(10):before { content: "Status"; }
+            td:nth-of-type(8):before { content: "Fuelman"; }
+            td:nth-of-type(9):before { content: "HM"; }
+            td:nth-of-type(10):before { content: "Qty (L)"; }
+            td:nth-of-type(11):before { content: "Status"; }
         }
     </style>
 </head>
@@ -123,11 +125,12 @@
             <div class="input-group">
                 <input type="text" id="barcodeInput" placeholder="Scan Barcode Unit..." readonly>
                 <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
+                <!-- FITUR BARU: NAMA FUELMAN -->
+                <input type="text" id="fuelmanInput" placeholder="Ketik Nama Fuelman">
                 <input type="number" id="hmInput" placeholder="HM Terakhir">
                 <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
             </div>
             
-            <!-- FITUR BARU: CHECKBOX IZIN BYPASS -->
             <div style="margin-bottom: 15px; padding: 10px; background-color: #fcebeb; border-radius: 6px; border: 1px dashed var(--danger);">
                 <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--danger); font-size: 14px; cursor: pointer;">
                     <input type="checkbox" id="izinShiftInput" style="width: 20px; height: 20px; cursor: pointer;">
@@ -149,6 +152,7 @@
                         <th>No Lambung</th>
                         <th>Tipe Unit</th>
                         <th>Driver</th>
+                        <th>Fuelman</th> <!-- FITUR BARU: NAMA FUELMAN -->
                         <th>HM</th>
                         <th>Qty Solar (L)</th>
                         <th>Status</th>
@@ -175,9 +179,10 @@
 
         const barcodeInput = document.getElementById('barcodeInput');
         const driverInput = document.getElementById('driverInput');
+        const fuelmanInput = document.getElementById('fuelmanInput'); // TANGKAP INPUT FUELMAN
         const hmInput = document.getElementById('hmInput');
         const qtyInput = document.getElementById('qtyInput');
-        const izinShiftInput = document.getElementById('izinShiftInput'); // Tangkap elemen checkbox
+        const izinShiftInput = document.getElementById('izinShiftInput'); 
         const tableBody = document.getElementById('tableBody');
         const btnKirim = document.getElementById('btnKirim');
         const btnToggleCamera = document.getElementById('btnToggleCamera');
@@ -189,12 +194,14 @@
         function kirimData() {
             const barcodeValue = barcodeInput.value;
             const driverValue = driverInput.value;
+            const fuelmanValue = fuelmanInput.value; // BACA VALUE FUELMAN
             const hmValue = parseFloat(hmInput.value); 
             const qtyValue = parseFloat(qtyInput.value); 
-            const izinShiftValue = izinShiftInput.checked; // Baca status centang
+            const izinShiftValue = izinShiftInput.checked; 
 
             if(barcodeValue === "") { alert("Peringatan: Barcode belum discan!"); return; }
-            if(driverValue === "") { alert("Peringatan: Nama Driver harus diisi!"); return; }
+            if(driverValue === "") { alert("Peringatan: Nama Driver harus diisi!"); driverInput.focus(); return; }
+            if(fuelmanValue === "") { alert("Peringatan: Nama Fuelman harus diisi!"); fuelmanInput.focus(); return; }
             if(isNaN(hmValue) || hmValue <= 0) { alert("❌ DITOLAK: Angka HM tidak valid!"); hmInput.focus(); return; }
             if(isNaN(qtyValue) || qtyValue <= 0) { alert("❌ DITOLAK: Quantity Solar tidak valid!"); qtyInput.focus(); return; }
 
@@ -203,13 +210,19 @@
             btnKirim.disabled = true;
 
             socket.emit('inisialisasi_scan', { 
-                barcode: barcodeValue, driver: driverValue, hm: hmValue, qty: qtyValue, 
-                lokasi: lokasiAktif, izin_shift: izinShiftValue // Kirim status izin ke server
+                barcode: barcodeValue, 
+                driver: driverValue, 
+                fuelman: fuelmanValue, // KIRIM DATA FUELMAN KE SERVER
+                hm: hmValue, 
+                qty: qtyValue, 
+                lokasi: lokasiAktif, 
+                izin_shift: izinShiftValue 
             });
         }
 
         barcodeInput.addEventListener('keypress', function(event) { if (event.key === 'Enter') kirimData(); });
         driverInput.addEventListener('keypress', function(event) { if (event.key === 'Enter') kirimData(); });
+        fuelmanInput.addEventListener('keypress', function(event) { if (event.key === 'Enter') kirimData(); });
         btnKirim.addEventListener('click', kirimData);
 
         btnToggleCamera.addEventListener('click', () => {
@@ -252,9 +265,12 @@
         }
 
         socket.on('update_monitor', (data) => {
-            // Reset semua input setelah sukses
-            barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = '';
-            izinShiftInput.checked = false; // Hilangkan centang otomatis
+            barcodeInput.value = ''; 
+            driverInput.value = ''; 
+            // PERHATIKAN: Saya tidak mereset nama fuelman, agar tidak lelah mengetik namanya berkali-kali!
+            hmInput.value = ''; 
+            qtyInput.value = '';
+            izinShiftInput.checked = false; 
             
             btnKirim.innerText = "Kirim Data Pengisian";
             btnKirim.style.backgroundColor = "var(--success)";
@@ -271,7 +287,9 @@
                 <td><strong>${data.no_lambung}</strong></td>
                 <td>${data.tipe_unit}</td>
                 <td>${data.driver}</td>
-                <td style="font-size: 16px;"><strong>${data.qty_solar}</strong></td>
+                <td>${data.fuelman}</td> <!-- DATA FUELMAN MASUK TABEL -->
+                <td><strong>${data.hm}</strong></td> 
+                <td style="font-size: 16px; color: var(--success);"><strong>${data.qty_solar}</strong></td>
                 <td><span class="badge-status">${data.status}</span></td>
             `;
             tableBody.prepend(row);
