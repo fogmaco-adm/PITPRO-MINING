@@ -126,8 +126,8 @@
             <div id="containerLine" style="display: none;">
                 <select id="pilihanLine" class="select-line">
                     <option value="" disabled selected>-- Pilih Jalur (Line) Pengisian --</option>
-                    <option value="KANAN">Jalur KANAN</option>
-                    <option value="KIRI">Jalur KIRI</option>
+                    <option value="KANAN">LINE KANAN</option>
+                    <option value="KIRI">LINE KIRI</option>
                 </select>
             </div>
 
@@ -180,7 +180,7 @@
             namaFuelmanAktif = inputFuelman.toUpperCase();
 
             // Tampilkan identitas di Header
-            document.getElementById('infoLokasiTeks').innerText = "📍 " + lokasiAktif + " | 👤 " + namaFuelmanAktif;
+            document.getElementById('infoLokasiTeks').innerHTML = "<span style='font-size: 18px; vertical-align: middle;'>📍</span> " + lokasiAktif + " &nbsp;|&nbsp; <span style='font-size: 18px; vertical-align: middle;'>👤</span> " + namaFuelmanAktif;
             
             // Logika menampilkan pilihan Kanan/Kiri jika lokasi adalah Pitstop
             const containerLine = document.getElementById('containerLine');
