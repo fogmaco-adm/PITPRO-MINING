@@ -7,7 +7,7 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         * { box-sizing: border-box; }
-        :root { --bg-color: #eaeded; --primary-color: #2c3e50; --accent-color: #f39c12; --text-dark: #333333; --white: #ffffff; --success: #27ae60; --danger: #e74c3c; }
+        :root { --bg-color: #eaeded; --primary-color: #2c3e50; --accent-color: #f39c12; --text-dark: #333333; --white: #ffffff; --success: #27ae60; --danger: #e74c3c; --warning: #f1c40f; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-dark); margin: 0; padding: 0; }
         
         #layarAwal { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
@@ -15,8 +15,12 @@
         .login-box img { max-width: 100%; height: 70px; margin-bottom: 20px; object-fit: contain; }
         .login-box h2 { color: var(--white); margin-top: 0; margin-bottom: 5px; text-transform: uppercase;}
         .login-box p { color: #ecf0f1; font-size: 14px; margin-bottom: 25px; }
-        .login-box select { width: 100%; padding: 15px; margin-bottom: 25px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 16px; font-weight: bold; color: var(--primary-color); background-color: #f9f9f9; outline: none; transition: 0.3s; cursor: pointer; }
-        .login-box select:focus { border-color: var(--accent-color); }
+        
+        /* Modifikasi Input di Layar Awal */
+        .login-box input[type="text"], .login-box select { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 16px; font-weight: bold; outline: none; transition: 0.3s; }
+        .login-box input[type="text"] { background-color: var(--white); color: var(--primary-color); }
+        .login-box select { color: var(--primary-color); background-color: #f9f9f9; cursor: pointer; }
+        .login-box input[type="text"]:focus, .login-box select:focus { border-color: var(--accent-color); }
 
         #layarUtama { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; } 
         .header-container { display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); padding: 15px 20px; border-radius: 8px 8px 0 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-bottom: 5px solid var(--accent-color); margin-bottom: 20px; position: relative;}
@@ -24,8 +28,17 @@
         .header-container h2 { color: var(--white); margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
         .info-lokasi { position: absolute; right: 20px; background: var(--accent-color); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;}
         
+        /* INDIKATOR SINYAL OFFLINE/ONLINE */
+        #statusKoneksi { text-align: center; font-weight: bold; padding: 10px; margin-bottom: 20px; border-radius: 6px; display: none; }
+        .status-offline { background-color: #fcebeb; color: var(--danger); border: 1px solid var(--danger); }
+        .status-online { background-color: #d4edda; color: #155724; border: 1px solid var(--success); }
+
         .input-section { background: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
         .input-section h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        /* Select khusus untuk Line (Kanan/Kiri) */
+        .select-line { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--accent-color); border-radius: 6px; font-size: 15px; font-weight: bold; color: var(--primary-color); }
+
         .input-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
         input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; transition: all 0.3s ease; }
         input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
@@ -40,9 +53,12 @@
         th, td { padding: 15px; text-align: center; border-bottom: 1px solid #eeeeee; }
         th { background-color: var(--primary-color); color: var(--white); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
         th:nth-child(2), th:nth-child(3) { color: var(--accent-color); }
-        .badge-status { background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        
+        .badge-status { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .bg-sukses { background-color: #d4edda; color: #155724; }
+        .bg-pending { background-color: #fef3c7; color: #92400e; }
 
-        #snackbar { visibility: hidden; min-width: 250px; background-color: var(--success); color: #fff; text-align: center; border-radius: 30px; padding: 15px 20px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; font-weight: bold; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4); }
+        #snackbar { visibility: hidden; min-width: 250px; background-color: var(--success); color: #fff; text-align: center; border-radius: 30px; padding: 15px 20px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 16px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
         #snackbar.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
@@ -50,7 +66,7 @@
         @media screen and (max-width: 768px) {
             .header-container { flex-direction: column; text-align: center; padding: 15px; }
             .header-container img { margin-right: 0; margin-bottom: 10px; height: 40px; }
-            .info-lokasi { position: static; display: inline-block; }
+            .info-lokasi { position: static; display: inline-block; margin-top:10px; }
             .input-section { padding: 15px; }
             .btn-kamera { width: 100%; }
             input[type="text"], input[type="number"] { flex: 1 1 100%; margin-right: 0; }
@@ -69,8 +85,12 @@
     <div id="layarAwal">
         <div class="login-box">
             <img src="logo.png" alt="Logo" onerror="this.style.display='none'"> 
-            <h2>Pilih Lokasi</h2>
-            <p>Silakan inisialisasi area pengisian Anda</p>
+            <h2>Inisialisasi Shift</h2>
+            <p>Masukkan identitas dan lokasi tugas Anda</p>
+            
+            <!-- INPUT NAMA FUELMAN DI AWAL -->
+            <input type="text" id="awalFuelman" placeholder="Ketik Nama Anda (Fuelman)" required>
+            
             <select id="pilihanLokasi">
                 <option value="" disabled selected>-- Pilih Titik Pengisian --</option>
                 <option value="FT57">FT57</option>
@@ -79,31 +99,42 @@
                 <option value="FT85">FT85</option>
                 <option value="FT87">FT87</option>
                 <option value="FT88">FT88</option>
-                <option value="PS NORTH KANAN">PS NORTH KANAN</option>
-                <option value="PS NORTH KIRI">PS NORTH KIRI</option>
-                <option value="PS ROAD1 KANAN">PS ROAD1 KANAN</option>
-                <option value="PS ROAD1 KIRI">PS ROAD1 KIRI</option>
+                <option value="PITSTOP NORTH">PITSTOP NORTH</option>
+                <option value="PITSTOP ROAD 1">PITSTOP ROAD 1</option>
             </select>
             <button class="btn-kirim" onclick="masukAplikasi()">MASUK SISTEM</button>
         </div>
     </div>
 
     <div id="layarUtama">
-        <div id="snackbar">✅ Data Berhasil Terkirim!</div>
+        <div id="snackbar">✅ Pesan Notifikasi</div>
+        
         <div class="header-container">
             <img src="logo.png" alt="Logo" onerror="this.style.display='none'"> 
             <h2>Pitpro Dashboard</h2>
-            <div id="infoLokasiTeks" class="info-lokasi">Lokasi: -</div>
+            <div id="infoLokasiTeks" class="info-lokasi">Lokasi: - | Fuelman: -</div>
         </div>
+
+        <div id="statusKoneksi"></div>
 
         <div class="input-section">
             <h3>FORM DIGITAL LOGSHEET</h3>
             <button id="btnToggleCamera" class="btn-kamera">📷 SCAN BARCODE DISINI</button>
             <div id="reader-container"><div id="reader"></div></div>
+            
+            <!-- PILIHAN LINE KANAN/KIRI (Hanya muncul jika Pitstop) -->
+            <div id="containerLine" style="display: none;">
+                <select id="pilihanLine" class="select-line">
+                    <option value="" disabled selected>-- Pilih Jalur (Line) Pengisian --</option>
+                    <option value="KANAN">Jalur KANAN</option>
+                    <option value="KIRI">Jalur KIRI</option>
+                </select>
+            </div>
+
             <div class="input-group">
                 <input type="text" id="barcodeInput" placeholder="Kode Unit" readonly>
                 <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
-                <input type="text" id="fuelmanInput" placeholder="Ketik Nama Fuelman">
+                <!-- Input fuelman dihapus dari sini karena sudah dikunci dari awal -->
                 <input type="number" id="hmInput" placeholder="HM Terakhir">
                 <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
             </div>
@@ -132,95 +163,176 @@
 
     <script>
         // =======================================================================
-        // PASTE LINK URL APLIKASI WEB GOOGLE APPS SCRIPT ANDA DI BAWAH INI:
         const LINK_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxZ14DyEVC6cUAiAz_PrgD3t_yIqjsl9ZviNbmPUKNwBE-HOVsl4YeDtwR5m2AT7tYe/exec"; 
         // =======================================================================
 
         let lokasiAktif = ""; 
+        let namaFuelmanAktif = "";
+
         function masukAplikasi() {
+            const inputFuelman = document.getElementById('awalFuelman').value.trim();
             const selectLokasi = document.getElementById('pilihanLokasi').value;
+
+            if (inputFuelman === "") { alert("Harap isi Nama Anda (Fuelman) terlebih dahulu!"); return; }
             if (selectLokasi === "") { alert("Harap pilih titik pengisian terlebih dahulu!"); return; }
+
             lokasiAktif = selectLokasi; 
-            document.getElementById('infoLokasiTeks').innerText = "📍 " + lokasiAktif;
+            namaFuelmanAktif = inputFuelman.toUpperCase();
+
+            // Tampilkan identitas di Header
+            document.getElementById('infoLokasiTeks').innerText = "📍 " + lokasiAktif + " | 👤 " + namaFuelmanAktif;
+            
+            // Logika menampilkan pilihan Kanan/Kiri jika lokasi adalah Pitstop
+            const containerLine = document.getElementById('containerLine');
+            if (lokasiAktif.includes("PITSTOP")) {
+                containerLine.style.display = "block";
+            } else {
+                containerLine.style.display = "none";
+            }
+
             document.getElementById('layarAwal').style.display = 'none';
             document.getElementById('layarUtama').style.display = 'block';
+            cekSinyal(); 
         }
 
         const barcodeInput = document.getElementById('barcodeInput');
         const driverInput = document.getElementById('driverInput');
-        const fuelmanInput = document.getElementById('fuelmanInput'); 
         const hmInput = document.getElementById('hmInput');
         const qtyInput = document.getElementById('qtyInput');
         const izinShiftInput = document.getElementById('izinShiftInput'); 
+        const pilihanLine = document.getElementById('pilihanLine');
         const tableBody = document.getElementById('tableBody');
         const btnKirim = document.getElementById('btnKirim');
         const btnToggleCamera = document.getElementById('btnToggleCamera');
         const readerContainer = document.getElementById('reader-container');
+        const statusKoneksi = document.getElementById('statusKoneksi');
         
         let html5QrcodeScanner;
         let cameraOpen = false;
 
+        window.addEventListener('online', () => { cekSinyal(); autoSyncData(); });
+        window.addEventListener('offline', cekSinyal);
+
+        function cekSinyal() {
+            if (navigator.onLine) {
+                statusKoneksi.style.display = 'none';
+            } else {
+                statusKoneksi.innerText = "⚠️ KONEKSI TERPUTUS! Aplikasi masuk ke Mode Offline. Data akan tersimpan di HP.";
+                statusKoneksi.className = "status-offline";
+                statusKoneksi.style.display = 'block';
+            }
+        }
+
+        function tampilkanNotif(pesan, warna = "var(--success)") {
+            const snackbar = document.getElementById("snackbar");
+            snackbar.innerText = pesan;
+            snackbar.style.backgroundColor = warna;
+            snackbar.className = "show";
+            setTimeout(() => { snackbar.className = ""; }, 3000);
+        }
+
+        function buatBarisTabel(data, isOffline = false) {
+            const row = document.createElement('tr');
+            const statusBadge = isOffline ? `<span class="badge-status bg-pending">Menunggu Sinyal...</span>` : `<span class="badge-status bg-sukses">${data.status || 'Selesai'}</span>`;
+            let jamTampil = data.jam_pengisian || new Date().toLocaleTimeString('id-ID');
+            let tglTampil = data.tanggal || new Date().toLocaleDateString('id-ID');
+
+            row.innerHTML = `
+                <td>${tglTampil}</td><td style="color: var(--accent-color); font-weight: bold;">-</td>
+                <td style="color: var(--primary-color); font-weight: bold;">${data.lokasi}</td><td>${jamTampil}</td>
+                <td><strong>${data.barcode || data.no_lambung}</strong></td><td>${data.tipe_unit || '-'}</td><td>${data.driver}</td><td>${data.fuelman}</td>
+                <td><strong>${data.hm}</strong></td><td style="font-size: 16px; color: var(--success);"><strong>${data.qty}</strong></td>
+                <td>${statusBadge}</td>
+            `;
+            return row;
+        }
+
         function kirimData() {
+            // Gabungkan Lokasi dengan Line (Kanan/Kiri) jika PITSTOP
+            let lokasiFinal = lokasiAktif;
+            if (lokasiAktif.includes("PITSTOP")) {
+                if (pilihanLine.value === "") {
+                    alert("⚠️ Harap pilih Jalur (Line Kanan/Kiri) terlebih dahulu!");
+                    pilihanLine.focus();
+                    return;
+                }
+                lokasiFinal = lokasiAktif + " - " + pilihanLine.value;
+            }
+
             const dataPengisian = {
                 barcode: barcodeInput.value,
-                driver: driverInput.value,
-                fuelman: fuelmanInput.value,
+                driver: driverInput.value.toUpperCase(),
+                fuelman: namaFuelmanAktif, // Mengambil dari data login awal
                 hm: parseFloat(hmInput.value),
                 qty: parseFloat(qtyInput.value),
-                lokasi: lokasiAktif,
-                izin_shift: izinShiftInput.checked
+                lokasi: lokasiFinal, // Lokasi yang sudah ditambah Kanan/Kiri
+                izin_shift: izinShiftInput.checked,
+                timestamp_lokal: new Date().getTime()
             };
 
             if(dataPengisian.barcode === "") { alert("Peringatan: Barcode belum discan!"); return; }
             if(dataPengisian.driver === "") { alert("Peringatan: Nama Driver harus diisi!"); return; }
-            if(dataPengisian.fuelman === "") { alert("Peringatan: Nama Fuelman harus diisi!"); return; }
             if(isNaN(dataPengisian.hm) || dataPengisian.hm <= 0) { alert("❌ DITOLAK: Angka HM tidak valid!"); hmInput.focus(); return; }
             if(isNaN(dataPengisian.qty) || dataPengisian.qty <= 0) { alert("❌ DITOLAK: Quantity Solar tidak valid!"); qtyInput.focus(); return; }
 
-            // Ubah tombol jadi loading
-            btnKirim.innerText = "⏳ Mengirim Data ke Database...";
-            btnKirim.style.backgroundColor = "#7f8c8d";
+            if (!navigator.onLine) {
+                let antreanOffline = JSON.parse(localStorage.getItem('antrean_pitpro')) || [];
+                antreanOffline.push(dataPengisian);
+                localStorage.setItem('antrean_pitpro', JSON.stringify(antreanOffline));
+
+                barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = ''; izinShiftInput.checked = false;
+                if(lokasiAktif.includes("PITSTOP")) pilihanLine.value = ""; // Reset line
+
+                tampilkanNotif("💾 Tersimpan di HP (Mode Offline)!", "var(--warning)");
+                tableBody.prepend(buatBarisTabel(dataPengisian, true));
+                return; 
+            }
+
+            btnKirim.innerText = "⏳ Mengirim...";
             btnKirim.disabled = true;
 
-            // KIRIM KE GOOGLE APPS SCRIPT MENGGUNAKAN FETCH (TANPA SOCKET.IO)
-            fetch(LINK_GOOGLE_SCRIPT, {
-                method: "POST",
-                body: JSON.stringify(dataPengisian)
-            })
+            fetch(LINK_GOOGLE_SCRIPT, { method: "POST", body: JSON.stringify(dataPengisian) })
             .then(response => response.json())
             .then(result => {
                 if (result.status === 'success') {
-                    // Berhasil
-                    barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = '';
-                    izinShiftInput.checked = false;
+                    barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = ''; izinShiftInput.checked = false;
+                    if(lokasiAktif.includes("PITSTOP")) pilihanLine.value = ""; // Reset line
                     
-                    document.getElementById("snackbar").className = "show";
-                    setTimeout(() => { document.getElementById("snackbar").className = ""; }, 3000);
+                    tampilkanNotif("✅ Data Berhasil Terkirim!");
+                    tableBody.prepend(buatBarisTabel(result.data, false));
+                } else { alert(result.message); }
+            })
+            .catch(error => { alert("Koneksi gagal. Coba matikan data seluler agar masuk Mode Offline."); })
+            .finally(() => { btnKirim.innerText = "Kirim Data Pengisian"; btnKirim.disabled = false; });
+        }
 
-                    const data = result.data;
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${data.tanggal}</td><td style="color: var(--accent-color); font-weight: bold;">${data.shift}</td>
-                        <td style="color: var(--primary-color); font-weight: bold;">${data.lokasi}</td><td>${data.jam_pengisian}</td>
-                        <td><strong>${data.no_lambung}</strong></td><td>${data.tipe_unit}</td><td>${data.driver}</td><td>${data.fuelman}</td>
-                        <td><strong>${data.hm}</strong></td><td style="font-size: 16px; color: var(--success);"><strong>${data.qty_solar}</strong></td>
-                        <td><span class="badge-status">${data.status}</span></td>
-                    `;
-                    tableBody.prepend(row);
-                } else {
-                    // Error dari Validasi (HM Mundur, dll)
-                    alert(result.message);
-                }
-            })
-            .catch(error => {
-                alert("Gagal terhubung ke database. Pastikan koneksi internet Anda stabil.");
-            })
-            .finally(() => {
-                // Kembalikan tombol seperti semula
-                btnKirim.innerText = "Kirim Data Pengisian";
-                btnKirim.style.backgroundColor = "var(--success)";
-                btnKirim.disabled = false;
-            });
+        async function autoSyncData() {
+            let antreanOffline = JSON.parse(localStorage.getItem('antrean_pitpro')) || [];
+            if(antreanOffline.length === 0) return;
+
+            statusKoneksi.innerText = `🔄 Sinyal kembali! Sedang menyinkronkan ${antreanOffline.length} data tertunda...`;
+            statusKoneksi.className = "status-online";
+            statusKoneksi.style.display = 'block';
+
+            let sisaAntrean = [];
+
+            for (let i = 0; i < antreanOffline.length; i++) {
+                try {
+                    let response = await fetch(LINK_GOOGLE_SCRIPT, { method: "POST", body: JSON.stringify(antreanOffline[i]) });
+                    let result = await response.json();
+                    if (result.status !== 'success') { console.error("Gagal Validasi:", result.message); }
+                } catch(e) { sisaAntrean.push(antreanOffline[i]); }
+            }
+
+            localStorage.setItem('antrean_pitpro', JSON.stringify(sisaAntrean));
+
+            if(sisaAntrean.length === 0) {
+                statusKoneksi.innerText = "✅ Semua data offline berhasil dikirim ke Server!";
+                setTimeout(() => { statusKoneksi.style.display = 'none'; }, 5000);
+            } else {
+                statusKoneksi.innerText = `⚠️ Tersisa ${sisaAntrean.length} data gagal terkirim.`;
+                statusKoneksi.className = "status-offline";
+            }
         }
 
         barcodeInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') kirimData(); });
@@ -228,19 +340,14 @@
 
         btnToggleCamera.addEventListener('click', () => {
             if (!cameraOpen) {
-                readerContainer.style.display = 'block';
-                btnToggleCamera.innerText = 'Tutup Kamera';
-                btnToggleCamera.style.backgroundColor = 'var(--danger)';
+                readerContainer.style.display = 'block'; btnToggleCamera.innerText = 'Tutup Kamera'; btnToggleCamera.style.backgroundColor = 'var(--danger)';
                 html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 150} }, false);
                 html5QrcodeScanner.render((teks) => {
-                    barcodeInput.value = teks;
-                    new Audio('https://www.soundjay.com/buttons/beep-07.wav').play().catch(()=>{});
+                    barcodeInput.value = teks; new Audio('https://www.soundjay.com/buttons/beep-07.wav').play().catch(()=>{});
                     html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false;
                 }, () => {});
                 cameraOpen = true;
-            } else {
-                html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false;
-            }
+            } else { html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false; }
         });
     </script>
 </body>
