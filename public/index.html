@@ -30,7 +30,7 @@
         .header-container h2 { color: var(--white); margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
         .info-lokasi { position: absolute; right: 20px; background: var(--accent-color); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;}
         
-        .input-section { background: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 5px solid var(--accent-color); }
+        .input-section { background: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
         .input-section h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; }
         .input-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
         input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; transition: all 0.3s ease; }
@@ -103,8 +103,8 @@
                 <option value="FT88">FT88</option>
                 <option value="PS NORTH KANAN">PS NORTH KANAN</option>
                 <option value="PS NORTH KIRI">PS NORTH KIRI</option>
-                <option value="PS ROAD 1 KANAN">PS ROAD 1 KANAN</option>
-                <option value="PS ROAD 1 KIRI">PS ROAD 1 KIRI</option>
+                <option value="PS ROAD1 KANAN">PS ROAD1 KANAN</option>
+                <option value="PS ROAD1 KIRI">PS ROAD1 KIRI</option>
             </select>
             <button class="btn-kirim" onclick="masukAplikasi()">MASUK SISTEM</button>
         </div>
@@ -119,11 +119,11 @@
         </div>
 
         <div class="input-section">
-            <h3>Form Pengisian Refueling</h3>
-            <button id="btnToggleCamera" class="btn-kamera">📷 Buka Kamera Scanner</button>
+            <h3>FORM DIGITAL LOGSHEET</h3>
+            <button id="btnToggleCamera" class="btn-kamera">📷 SCAN BARCODE DISINI</button>
             <div id="reader-container"><div id="reader"></div></div>
             <div class="input-group">
-                <input type="text" id="barcodeInput" placeholder="Scan Barcode Unit..." readonly>
+                <input type="text" id="barcodeInput" placeholder="Kode Unit" readonly>
                 <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
                 <!-- FITUR BARU: NAMA FUELMAN -->
                 <input type="text" id="fuelmanInput" placeholder="Ketik Nama Fuelman">
@@ -236,7 +236,7 @@
             } else {
                 html5QrcodeScanner.clear().then(() => {
                     readerContainer.style.display = 'none';
-                    btnToggleCamera.innerText = '📷 Buka Kamera Scanner';
+                    btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI';
                     btnToggleCamera.style.backgroundColor = '#3498db';
                     cameraOpen = false;
                 });
@@ -249,7 +249,7 @@
             audio.play().catch(()=>{});
             html5QrcodeScanner.clear().then(() => {
                 readerContainer.style.display = 'none';
-                btnToggleCamera.innerText = '📷 Buka Kamera Scanner';
+                btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI';
                 btnToggleCamera.style.backgroundColor = '#3498db';
                 cameraOpen = false;
             });
