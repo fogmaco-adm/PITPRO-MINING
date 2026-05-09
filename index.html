@@ -235,11 +235,11 @@
                 html5QrcodeScanner.render((teks) => {
                     barcodeInput.value = teks;
                     new Audio('https://www.soundjay.com/buttons/beep-07.wav').play().catch(()=>{});
-                    html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 Buka Kamera Scanner'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false;
+                    html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false;
                 }, () => {});
                 cameraOpen = true;
             } else {
-                html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 Buka Kamera Scanner'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false;
+                html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false;
             }
         });
     </script>
