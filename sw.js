@@ -1,5 +1,5 @@
 // UBAH VERSI CACHE MENJADI V2 AGAR HP MEMBUANG MEMORI LAMA
-const CACHE_NAME = 'pitpro-cache-v2'; 
+const CACHE_NAME = 'pitpro-cache-v4'; 
 
 const urlsToCache = [
     './',

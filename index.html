@@ -238,11 +238,10 @@
             const row = document.createElement('tr');
             const statusBadge = isOffline ? `<span class="badge-status bg-pending">Menunggu Sinyal...</span>` : `<span class="badge-status bg-sukses">${data.status || 'Selesai'}</span>`;
             
-            // Format waktu untuk data offline sementara
             let jamTampil = data.jam_pengisian || new Date().toLocaleTimeString('id-ID');
             let tglTampil = data.tanggal || new Date().toLocaleDateString('id-ID');
             
-            // PERBAIKAN: Menangani perbedaan nama data (qty vs qty_solar)
+            // KUNCI PERBAIKANNYA ADA DI 2 BARIS INI:
             let qtyTampil = data.qty_solar || data.qty || '-';
             let shiftTampil = data.shift || '-';
 
