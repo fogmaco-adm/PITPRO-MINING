@@ -328,8 +328,6 @@
                 btnKirim.innerText = "Kirim Data Pengisian";
                 btnKirim.disabled = false;
             });
-            .catch(error => { alert("Koneksi gagal. Coba matikan data seluler agar masuk Mode Offline."); })
-            .finally(() => { btnKirim.innerText = "Kirim Data Pengisian"; btnKirim.disabled = false; });
         }
 
         async function autoSyncData() {
