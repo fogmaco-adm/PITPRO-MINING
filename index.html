@@ -31,6 +31,12 @@
         .header-container h2 { color: var(--white); margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
         .info-lokasi { position: absolute; right: 20px; background: var(--accent-color); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;}
         
+        /* TOMBOL LOGOUT */
+        .btn-logout { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background-color: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-logout:hover { background-color: #c0392b; }
+
+        /* Geser info lokasi agar tidak tertimpa tombol logout */
+        .header-container .info-lokasi { right: 130px; }
         /* INDIKATOR SINYAL OFFLINE/ONLINE */
         #statusKoneksi { text-align: center; font-weight: bold; padding: 10px; margin-bottom: 20px; border-radius: 6px; display: none; }
         .status-offline { background-color: #fcebeb; color: var(--danger); border: 1px solid var(--danger); }
@@ -80,6 +86,8 @@
             td { border: none; border-bottom: 1px solid #eee; position: relative; padding: 12px 10px 12px 45%; text-align: right; font-size: 14px; }
             td:before { position: absolute; top: 12px; left: 15px; width: 40%; white-space: nowrap; text-align: left; font-weight: bold; color: var(--primary-color); }
             td:nth-of-type(1):before { content: "Tanggal"; } td:nth-of-type(2):before { content: "Shift"; } td:nth-of-type(3):before { content: "Lokasi"; } td:nth-of-type(4):before { content: "Jam"; } td:nth-of-type(5):before { content: "No Lambung"; } td:nth-of-type(6):before { content: "Tipe Unit"; } td:nth-of-type(7):before { content: "Driver"; } td:nth-of-type(8):before { content: "Fuelman"; } td:nth-of-type(9):before { content: "HM"; } td:nth-of-type(10):before { content: "Qty (L)"; } td:nth-of-type(11):before { content: "Status"; }
+            .btn-logout { position: static; display: inline-block; margin-top: 10px; transform: none; margin-left: 10px;}
+            .header-container .info-lokasi { position: static; display: inline-block; right: auto; margin-top: 10px; }
         }
     </style>
 </head>
@@ -116,6 +124,7 @@
             <img src="logo.png" alt="Logo" onerror="this.style.display='none'"> 
             <h2>Pitpro Dashboard</h2>
             <div id="infoLokasiTeks" class="info-lokasi">Lokasi: - | Fuelman: -</div>
+            <button class="btn-logout" onclick="keluarAplikasi()">Keluar Shift</button>
         </div>
 
         <div id="statusKoneksi"></div>
@@ -204,6 +213,28 @@
             document.getElementById('layarAwal').style.display = 'none';
             document.getElementById('layarUtama').style.display = 'block';
             cekSinyal(); 
+        }
+        function keluarAplikasi() {
+            const konfirmasi = confirm("Apakah Anda yakin ingin keluar dari Shift ini?\n\nPastikan semua data pengisian sudah berstatus 'Selesai' (Hijau).");
+            
+            if (konfirmasi) {
+                // 1. Reset Variabel
+                lokasiAktif = ""; 
+                namaFuelmanAktif = "";
+
+                // 2. Kosongkan Form Login Awal (agar user berikutnya harus ketik ulang)
+                document.getElementById('awalFuelman').value = "";
+                document.getElementById('pilihanLokasi').value = "";
+
+                // 3. (Opsional) Kosongkan tabel history pengisian di layar
+                document.getElementById('tableBody').innerHTML = "";
+
+                // 4. Sembunyikan Layar Utama, Munculkan Layar Awal
+                document.getElementById('layarUtama').style.display = 'none';
+                
+                // Penting: Gunakan 'flex' bukan 'block' karena layarAwal menggunakan flexbox
+                document.getElementById('layarAwal').style.display = 'flex'; 
+            }
         }
         function ambilHMTerakhir(barcode) {
             if (!barcode) return;
