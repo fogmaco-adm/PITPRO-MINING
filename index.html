@@ -304,36 +304,31 @@
             .then(response => response.json())
             .then(result => {
                 if (result.status === 'success') {
+                    // JIKA BERHASIL (Normal)
                     const data = result.data;
-                    const selisih = parseFloat(data.selisih_hm);
-
-                    // --- LOGIKA PERINGATAN SELISIH > 24 JAM ---
-                    if (selisih > 24) {
-                        // Jika selisih lebih dari 24 jam, tampilkan peringatan yang lebih mencolok
-                        alert(`⚠️ PERINGATAN: SELISIH HM SANGAT TINGGI!\n\n` +
-                              `Unit: ${data.no_lambung}\n` +
-                              `Selisih HM: ${selisih} Jam\n\n` +
-                              `HM naik lebih dari 24 jam sejak pengisian terakhir. Mohon cek kembali fisik HM di unit dan pastikan angka yang Anda input sudah benar!`);
-                    } else {
-                        // Jika selisih normal (0 - 24 jam)
-                        alert(`✅ PENGISIAN BERHASIL!\n\n` +
-                              `Unit: ${data.no_lambung}\n` +
-                              `HM Sebelumnya: ${data.hm_sebelumnya}\n` +
-                              `HM Input Baru: ${data.hm}\n` +
-                              `Selisih HM: ${selisih} Jam\n` +
-                              `Qty Solar: ${data.qty_solar} Liter`);
-                    }
-
-                    // Bersihkan form seperti biasa
+                    alert(`✅ PENGISIAN BERHASIL!\n\nUnit: ${data.no_lambung}\nSelisih HM: ${data.selisih_hm} Jam`);
+                    
+                    // Bersihkan form hanya jika sukses
                     barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = ''; izinShiftInput.checked = false;
                     if(lokasiAktif.includes("PITSTOP")) pilihanLine.value = ""; 
                     
                     tampilkanNotif("✅ Data Berhasil Terkirim!");
                     tableBody.prepend(buatBarisTabel(data, false));
-                } else { 
+                } 
+                else if (result.status === 'error') {
+                    // JIKA DITOLAK (Karena Selisih > 24 Jam atau HM Mundur)
                     alert(result.message); 
+                    // Tombol kirim otomatis aktif lagi, form TIDAK dihapus agar bisa diperbaiki
+                    hmInput.focus(); 
                 }
             })
+            .catch(error => {
+                alert("Gagal terhubung. Coba matikan data seluler agar masuk Mode Offline.");
+            })
+            .finally(() => {
+                btnKirim.innerText = "Kirim Data Pengisian";
+                btnKirim.disabled = false;
+            });
             .catch(error => { alert("Koneksi gagal. Coba matikan data seluler agar masuk Mode Offline."); })
             .finally(() => { btnKirim.innerText = "Kirim Data Pengisian"; btnKirim.disabled = false; });
         }
