@@ -203,6 +203,7 @@
             cekSinyal(); 
         }
         function ambilHMTerakhir(barcode) {
+            console.log("Mencoba mengambil HM untuk:", barcode); // Cek apakah fungsi terpanggil
             if (!barcode) return;
             
             const label = document.getElementById('labelHMTerakhir');
@@ -218,14 +219,17 @@
             })
             .then(res => res.json())
             .then(res => {
+                console.log("Respon dari Google:", res); // LIHAT DI SINI APAKAH ADA JAWABAN
                 if (res.status === 'success') {
                     val.innerText = res.hm_terakhir;
                     tampilkanNotif(`Unit: ${res.no_lambung} terdeteksi`);
                 } else {
                     val.innerText = "Tidak Terdaftar";
+                    console.warn("Unit tidak ditemukan di Master.");
                 }
             })
-            .catch(() => {
+            .catch(err => {
+                console.error("Gagal Fetch:", err);
                 val.innerText = "Gagal memuat (Offline)";
             });
         }
