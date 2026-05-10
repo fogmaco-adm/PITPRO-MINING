@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PITPRO Dashboard | Refueling</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="apple-touch-icon" href="logo.png">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         * { box-sizing: border-box; }
@@ -349,6 +352,20 @@
                 cameraOpen = true;
             } else { html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false; }
         });
+        // ==========================================
+        // DAFTARKAN SERVICE WORKER UNTUK MODE OFFLINE
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('✅ ServiceWorker sukses terdaftar! Aplikasi siap offline.');
+                })
+                .catch(error => {
+                    console.log('❌ ServiceWorker gagal mendaftar: ', error);
+                });
+            });
+        }
     </script>
 </body>
 </html>
