@@ -133,7 +133,14 @@
                     <option value="KIRI">LINE KIRI</option>
                 </select>
             </div>
-
+            <div class="input-group">
+            <div style="width: 100%; margin-bottom: 5px;">
+               <span id="labelHMTerakhir" style="font-size: 13px; color: var(--accent-color); font-weight: bold; background: #fff3e0; padding: 2px 8px; border-radius: 4px; display: none;">
+            📌 HM Terakhir: <span id="valHMTerakhir">-</span>
+             </span>
+            </div>
+    <input type="text" id="barcodeInput" placeholder="Kode Unit" readonly>
+    </div>
             <div class="input-group">
                 <input type="text" id="barcodeInput" placeholder="Kode Unit" readonly>
                 <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
@@ -196,6 +203,33 @@
             document.getElementById('layarAwal').style.display = 'none';
             document.getElementById('layarUtama').style.display = 'block';
             cekSinyal(); 
+        }
+        function ambilHMTerakhir(barcode) {
+            if (!barcode) return;
+            
+            const label = document.getElementById('labelHMTerakhir');
+            const val = document.getElementById('valHMTerakhir');
+            
+            val.innerText = "Memuat...";
+            label.style.display = "inline-block";
+
+            fetch(LINK_GOOGLE_SCRIPT, { 
+                method: "POST", 
+                body: JSON.stringify({ aksi: "cek_unit", barcode: barcode }),
+                redirect: "follow"
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    val.innerText = res.hm_terakhir;
+                    tampilkanNotif(`Unit: ${res.no_lambung} terdeteksi`);
+                } else {
+                    val.innerText = "Tidak Terdaftar";
+                }
+            })
+            .catch(() => {
+                val.innerText = "Gagal memuat (Offline)";
+            });
         }
 
         const barcodeInput = document.getElementById('barcodeInput');
@@ -372,7 +406,8 @@
                 readerContainer.style.display = 'block'; btnToggleCamera.innerText = 'Tutup Kamera'; btnToggleCamera.style.backgroundColor = 'var(--danger)';
                 html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 150} }, false);
                 html5QrcodeScanner.render((teks) => {
-                    barcodeInput.value = teks; new Audio('https://www.soundjay.com/buttons/beep-07.wav').play().catch(()=>{});
+                    barcodeInput.value = teks; 
+                    ambilHMTerakhir(teks); new Audio('https://www.soundjay.com/buttons/beep-07.wav').play().catch(()=>{});
                     html5QrcodeScanner.clear(); readerContainer.style.display = 'none'; btnToggleCamera.innerText = '📷 SCAN BARCODE DISINI'; btnToggleCamera.style.backgroundColor = '#3498db'; cameraOpen = false;
                 }, () => {});
                 cameraOpen = true;
