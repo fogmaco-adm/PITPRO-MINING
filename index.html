@@ -298,12 +298,20 @@
             .then(response => response.json())
             .then(result => {
                 if (result.status === 'success') {
+                    const data = result.data;
+                    
+                    // --- MUNCULKAN POP-UP SELISIH HM ---
+                    alert(`✅ PENGISIAN BERHASIL!\n\nUnit: ${data.no_lambung}\nHM Sebelumnya: ${data.hm_sebelumnya}\nHM Input Baru: ${data.hm}\nSelisih HM: ${data.selisih_hm} Jam\nQty Solar: ${data.qty_solar} Liter`);
+
+                    // Bersihkan form setelah klik OK di pop-up
                     barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = ''; izinShiftInput.checked = false;
-                    if(lokasiAktif.includes("PITSTOP")) pilihanLine.value = ""; // Reset line
+                    if(lokasiAktif.includes("PITSTOP")) pilihanLine.value = ""; 
                     
                     tampilkanNotif("✅ Data Berhasil Terkirim!");
-                    tableBody.prepend(buatBarisTabel(result.data, false));
-                } else { alert(result.message); }
+                    tableBody.prepend(buatBarisTabel(data, false));
+                } else { 
+                    alert(result.message); 
+                }
             })
             .catch(error => { alert("Koneksi gagal. Coba matikan data seluler agar masuk Mode Offline."); })
             .finally(() => { btnKirim.innerText = "Kirim Data Pengisian"; btnKirim.disabled = false; });
