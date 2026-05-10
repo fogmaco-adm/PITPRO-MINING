@@ -121,43 +121,41 @@
         <div id="statusKoneksi"></div>
 
         <div class="input-section">
-            <h3>FORM DIGITAL LOGSHEET</h3>
-            <button id="btnToggleCamera" class="btn-kamera">📷 SCAN BARCODE DISINI</button>
-            <div id="reader-container"><div id="reader"></div></div>
-            
-            <!-- PILIHAN LINE KANAN/KIRI (Hanya muncul jika Pitstop) -->
-            <div id="containerLine" style="display: none;">
-                <select id="pilihanLine" class="select-line">
-                    <option value="" disabled selected>-- Pilih Jalur (Line) Pengisian --</option>
-                    <option value="KANAN">LINE KANAN</option>
-                    <option value="KIRI">LINE KIRI</option>
-                </select>
-            </div>
-            <div class="input-group">
-            <div style="width: 100%; margin-bottom: 5px;">
-               <span id="labelHMTerakhir" style="font-size: 13px; color: var(--accent-color); font-weight: bold; background: #fff3e0; padding: 2px 8px; border-radius: 4px; display: none;">
-            📌 HM Terakhir: <span id="valHMTerakhir">-</span>
-             </span>
-            </div>
-    <input type="text" id="barcodeInput" placeholder="Kode Unit" readonly>
-    </div>
-            <div class="input-group">
-                <input type="text" id="barcodeInput" placeholder="Kode Unit" readonly>
-                <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
-                <!-- Input fuelman dihapus dari sini karena sudah dikunci dari awal -->
-                <input type="number" id="hmInput" placeholder="HM Terakhir">
-                <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
-            </div>
-            
-            <div style="margin-bottom: 15px; padding: 10px; background-color: #fcebeb; border-radius: 6px; border: 1px dashed var(--danger);">
-                <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--danger); font-size: 14px; cursor: pointer;">
-                    <input type="checkbox" id="izinShiftInput" style="width: 20px; height: 20px; cursor: pointer;">
-                    Izinkan Bypass (Khusus Pengisian DT/HD Beda Shift)
-                </label>
-            </div>
+                <h3>FORM DIGITAL LOGSHEET</h3>
+                <button id="btnToggleCamera" class="btn-kamera">📷 SCAN BARCODE DISINI</button>
+                <div id="reader-container"><div id="reader"></div></div>
+                
+                <div id="containerLine" style="display: none;">
+                    <select id="pilihanLine" class="select-line">
+                        <option value="" disabled selected>-- Pilih Jalur (Line) Pengisian --</option>
+                        <option value="KANAN">LINE KANAN</option>
+                        <option value="KIRI">LINE KIRI</option>
+                    </select>
+                </div>
 
-            <button id="btnKirim" class="btn-kirim">Kirim Data Pengisian</button>
-        </div>
+                <div class="input-group">
+                    <div style="width: 100%; margin-bottom: 5px;">
+                        <span id="labelHMTerakhir" style="font-size: 13px; color: var(--accent-color); font-weight: bold; background: #fff3e0; padding: 5px 10px; border-radius: 6px; display: none; border: 1px solid #ffe0b2; width: 100%;">
+                            📌 HM Terakhir: <span id="valHMTerakhir">-</span>
+                        </span>
+                    </div>
+
+                    <input type="text" id="barcodeInput" placeholder="Kode Unit" readonly style="background-color: #f8f9fa;">
+                    
+                    <input type="text" id="driverInput" placeholder="Ketik Nama Driver">
+                    <input type="number" id="hmInput" placeholder="HM Baru Saat Ini">
+                    <input type="number" id="qtyInput" placeholder="Quantity Solar (L)">
+                </div>
+                
+                <div style="margin-bottom: 15px; padding: 10px; background-color: #fcebeb; border-radius: 6px; border: 1px dashed var(--danger);">
+                    <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--danger); font-size: 14px; cursor: pointer;">
+                        <input type="checkbox" id="izinShiftInput" style="width: 20px; height: 20px; cursor: pointer;">
+                        Izinkan Bypass (Khusus Pengisian DT/HD Beda Shift)
+                    </label>
+                </div>
+
+                <button id="btnKirim" class="btn-kirim">Kirim Data Pengisian</button>
+            </div>
 
         <div class="table-container">
             <table id="monitoringTable">
