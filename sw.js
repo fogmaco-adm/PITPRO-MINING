@@ -1,8 +1,11 @@
-const CACHE_NAME = 'pitpro-cache-v1';
+// UBAH VERSI CACHE MENJADI V2 AGAR HP MEMBUANG MEMORI LAMA
+const CACHE_NAME = 'pitpro-cache-v2'; 
+
 const urlsToCache = [
     './',
     './index.html',
-    './logo.png',
+    './logo.png',         // (Biarkan jika logo ini masih dipakai di dalam web/header)
+    './icon-app.png',     // MASUKKAN NAMA GAMBAR ICON BARU ANDA DI SINI
     'https://unpkg.com/html5-qrcode'
 ];
 
