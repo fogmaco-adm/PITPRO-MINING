@@ -299,15 +299,21 @@
             btnKirim.innerText = "⏳ Mengirim...";
             btnKirim.disabled = true;
 
-            fetch(LINK_GOOGLE_SCRIPT, { method: "POST", body: JSON.stringify(dataPengisian), redirect: "follow"})
+          fetch(LINK_GOOGLE_SCRIPT, { method: "POST", body: JSON.stringify(dataPengisian), redirect: "follow"})
             .then(response => response.json())
             .then(result => {
                 if (result.status === 'success') {
-                    // JIKA BERHASIL (Normal)
                     const data = result.data;
-                    alert(`✅ PENGISIAN BERHASIL!\n\nUnit: ${data.no_lambung}\nSelisih HM: ${data.selisih_hm} Jam`);
                     
-                    // Bersihkan form hanya jika sukses
+                    // --- LOGIKA PERINGATAN LUNAK (SOFT WARNING) ---
+                    const selisih = parseFloat(data.selisih_hm);
+                    if (selisih > 24) {
+                        alert(`⚠️ DATA TERSIMPAN (DENGAN CATATAN)!\n\nUnit: ${data.no_lambung}\nSelisih HM: ${data.selisih_hm} Jam\n\nCatatan: Angka HM melonjak cukup jauh. Harap pastikan kembali fisik HM unit ini nanti.`);
+                    } else {
+                        alert(`✅ PENGISIAN BERHASIL!\n\nUnit: ${data.no_lambung}\nSelisih HM: ${data.selisih_hm} Jam`);
+                    }
+
+                    // Bersihkan form karena data sudah berhasil masuk
                     barcodeInput.value = ''; driverInput.value = ''; hmInput.value = ''; qtyInput.value = ''; izinShiftInput.checked = false;
                     if(lokasiAktif.includes("PITSTOP")) pilihanLine.value = ""; 
                     
@@ -315,9 +321,8 @@
                     tableBody.prepend(buatBarisTabel(data, false));
                 } 
                 else if (result.status === 'error') {
-                    // JIKA DITOLAK (Karena Selisih > 24 Jam atau HM Mundur)
+                    // JIKA DITOLAK (Hanya akan terjadi jika HM Mundur atau Unit Ganjil/Genap salah)
                     alert(result.message); 
-                    // Tombol kirim otomatis aktif lagi, form TIDAK dihapus agar bisa diperbaiki
                     hmInput.focus(); 
                 }
             })
