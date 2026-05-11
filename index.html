@@ -364,6 +364,10 @@
 
                 tampilkanNotif("💾 Tersimpan di HP (Mode Offline)!", "var(--warning)");
                 tableBody.prepend(buatBarisTabel(dataPengisian, true));
+                // --- KODE PEMBATAS 3 BARIS ---
+                if (tableBody.children.length > 3) {
+                    tableBody.removeChild(tableBody.lastElementChild);
+                }
                 return; 
             }
 
@@ -390,6 +394,10 @@
                     
                     tampilkanNotif("✅ Data Berhasil Terkirim!");
                     tableBody.prepend(buatBarisTabel(data, false));
+                    // --- KODE PEMBATAS 3 BARIS ---
+                    if (tableBody.children.length > 3) {
+                        tableBody.removeChild(tableBody.lastElementChild);
+                    }
                 } 
                 else if (result.status === 'error') {
                     // JIKA DITOLAK (Hanya akan terjadi jika HM Mundur atau Unit Ganjil/Genap salah)
