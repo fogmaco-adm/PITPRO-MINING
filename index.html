@@ -11,7 +11,19 @@
     <style>
         * { box-sizing: border-box; }
         :root { --bg-color: #eaeded; --primary-color: #2c3e50; --accent-color: #f39c12; --text-dark: #333333; --white: #ffffff; --success: #27ae60; --danger: #e74c3c; --warning: #f1c40f; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-dark); margin: 0; padding: 0; }
+       body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    
+        /* BACKGROUND PINDAH KE SINI SEMUA */
+        background-image: 
+        linear-gradient(rgba(240, 242, 245, 0.85), rgba(240, 242, 245, 0.85)), 
+        url('https://images.unsplash.com/photo-1518173946687-a4c8995a393e?q=80&w=1920');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
+        }
         
         #layarAwal { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .login-box { background: var(--primary-color); padding: 40px 30px; border-radius: 12px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); border-bottom: 6px solid var(--accent-color); }
@@ -26,21 +38,9 @@
         .login-box input[type="text"]:focus, .login-box select:focus { border-color: var(--accent-color); }
 
         #layarUtama { 
-    display: none; 
-    min-height: 100vh; 
-    padding: 0; 
-    
-    /* TEKNIK BARU: Gabungan Cat Putih Transparan + Gambar langsung di satu tempat! */
-    /* Angka 0.85 adalah tingkat samar (1.0 = putih polos tertutup, 0.0 = gambar terang benderang) */
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
-        url('https://images.unsplash.com/photo-1518173946687-a4c8995a393e?q=80&w=1920');
-    
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    background-attachment: fixed; /* Efek keren: Gambar diam di tempat saat layar di-scroll! */
-    }
+        display: none; 
+        padding: 0; /* Tetap 0 agar tidak nabrak pinggir */
+        }
         .header-container { display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); padding: 15px 20px; border-radius: 8px 8px 0 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-bottom: 5px solid var(--accent-color); margin-bottom: 20px; position: relative;}
         .header-container img { height: 50px; margin-right: 20px; object-fit: contain; }
         .header-container h2 { color: var(--white); margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
