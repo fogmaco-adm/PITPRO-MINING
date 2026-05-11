@@ -25,23 +25,22 @@
         .login-box select { color: var(--primary-color); background-color: #f9f9f9; cursor: pointer; }
         .login-box input[type="text"]:focus, .login-box select:focus { border-color: var(--accent-color); }
 
-        #layarUtama { display: none; position: relative; min-height: 100vh; padding: 0; overflow: hidden; z-index: 1; }
-        /* INI KODE BARU UNTUK BACKGROUND SAMAR */
-        #layarUtama::before {
-        content: ""; 
-        position: absolute; 
-        top: 0; left: 0; width: 100%; height: 100%;
-        z-index: -1; 
+        #layarUtama { 
+    display: none; 
+    min-height: 100vh; 
+    padding: 0; 
     
-        /* Tes pakai link ini dulu ya */
-        background-image: url('https://images.unsplash.com/photo-1518173946687-a4c8995a393e?q=80&w=1920'); 
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: cover;
+    /* TEKNIK BARU: Gabungan Cat Putih Transparan + Gambar langsung di satu tempat! */
+    /* Angka 0.85 adalah tingkat samar (1.0 = putih polos tertutup, 0.0 = gambar terang benderang) */
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
+        url('https://images.unsplash.com/photo-1518173946687-a4c8995a393e?q=80&w=1920');
     
-        /* Kita buat agak tebal dulu (0.5) supaya jelas terlihat, nanti baru diturunkan ke 0.1 */
-        opacity: 0.5; 
-         }   
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed; /* Efek keren: Gambar diam di tempat saat layar di-scroll! */
+    }
         .header-container { display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); padding: 15px 20px; border-radius: 8px 8px 0 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-bottom: 5px solid var(--accent-color); margin-bottom: 20px; position: relative;}
         .header-container img { height: 50px; margin-right: 20px; object-fit: contain; }
         .header-container h2 { color: var(--white); margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
