@@ -12,18 +12,17 @@
         * { box-sizing: border-box; }
         :root { --bg-color: #eaeded; --primary-color: #2c3e50; --accent-color: #f39c12; --text-dark: #333333; --white: #ffffff; --success: #27ae60; --danger: #e74c3c; --warning: #f1c40f; }
        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-        
-            /* BACKGROUND PINDAH KE SINI SEMUA */
-            background-image: 
-            linear-gradient(rgba(240, 242, 245, 0.5), rgba(240, 242, 245, 0.5)), /* Angka 0.85 saya ubah jadi 0.5 */
-            url('https://images.unsplash.com/photo-1518173946687-a4c8995a393e?q=80&w=1920');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: cover;
-            background-attachment: fixed;
-        }
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    
+        /* KITA PAKAI GAMBAR LOKAL ANDA SAJA (Ganti nama file-nya jika beda) */
+        background-image: url('background.jpg'); 
+        background-color: #2c3e50; /* Warna cadangan jika gambar gagal load */
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
+    }
         
         #layarAwal { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .login-box { background: var(--primary-color); padding: 40px 30px; border-radius: 12px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); border-bottom: 6px solid var(--accent-color); }
